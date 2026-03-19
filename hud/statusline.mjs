@@ -109,24 +109,28 @@ function formatRateLimits(rateLimits) {
 
   // 5-hour limit (usage-api returns fiveHourPercent and fiveHourResetsAt)
   if (typeof rateLimits.fiveHourPercent === 'number') {
-    const pct = Math.round(rateLimits.fiveHourPercent);
+    const raw = rateLimits.fiveHourPercent;
+    const pct = Math.round(raw);
     const resetMinutes = getResetMinutes(rateLimits.fiveHourResetsAt);
     const reset = formatDuration(resetMinutes);
     // 5시간 = 300분, 경과 시간을 시간 단위로 변환, 5구간
     const elapsedHours = (300 - resetMinutes) / 60;
-    const bar5h = allocationBar(pct, elapsedHours, 5);
-    parts.push(`\u231B ${bar5h} ${colorAllocationPercent(pct, elapsedHours, 5)}(${reset})`);
+    // 색상은 원본 값으로 계산, 표시는 반올림
+    const bar5h = allocationBar(raw, elapsedHours, 5);
+    parts.push(`\u231B ${bar5h} ${colorAllocationPercent(pct, raw, elapsedHours, 5)}(${reset})`);
   }
 
   // Weekly limit (usage-api returns weeklyPercent and weeklyResetsAt)
   if (typeof rateLimits.weeklyPercent === 'number') {
-    const pct = Math.round(rateLimits.weeklyPercent);
+    const raw = rateLimits.weeklyPercent;
+    const pct = Math.round(raw);
     const resetMinutes = getResetMinutes(rateLimits.weeklyResetsAt);
     const reset = formatDuration(resetMinutes);
     // 168시간(7일), 경과 일수 계산, 7구간
     const elapsedDays = (168 - Math.max(1, resetMinutes / 60)) / 24;
-    const bar7d = allocationBar(pct, elapsedDays, 7);
-    parts.push(`\uD83D\uDCC5 ${bar7d} ${colorAllocationPercent(pct, elapsedDays, 7)}(${reset})`);
+    // 색상은 원본 값으로 계산, 표시는 반올림
+    const bar7d = allocationBar(raw, elapsedDays, 7);
+    parts.push(`\uD83D\uDCC5 ${bar7d} ${colorAllocationPercent(pct, raw, elapsedDays, 7)}(${reset})`);
   }
 
   if (parts.length === 0) return null;
@@ -273,16 +277,16 @@ const getAllocationColor = (usedPercent, elapsed, totalPeriods) => {
   const allocation = 100 / totalPeriods;
   const cumulative = allocation * elapsed;
 
-  if (usedPercent < cumulative - allocation) return null;      // 이월분 (무색)
-  if (usedPercent < cumulative)              return TN.green;  // 현재 구간
+  if (usedPercent < cumulative)         return null;           // 이월분 (기대치 미만 = 여유)
+  if (usedPercent < cumulative + allocation * 0.5) return TN.green;  // 현재 구간
   if (usedPercent < cumulative + allocation * 0.5) return TN.amber;  // 다음 절반
   if (usedPercent < cumulative + allocation) return TN.coral;  // 다음 구간
   return TN.coral;                                              // 초과
 };
 
-const colorAllocationPercent = (usedPercent, elapsed, totalPeriods) => {
-  const pctStr = `${usedPercent}%`;
-  const color = getAllocationColor(usedPercent, elapsed, totalPeriods);
+const colorAllocationPercent = (displayPercent, rawPercent, elapsed, totalPeriods) => {
+  const pctStr = `${displayPercent}%`;
+  const color = getAllocationColor(rawPercent, elapsed, totalPeriods);
   if (!color) return pctStr;
   if (color === TN.coral) return `${BOLD}${color.fg}${pctStr}${RST}`;
   return `${color.fg}${pctStr}${RST}`;
