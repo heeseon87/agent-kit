@@ -10,7 +10,6 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, openSync, readSync, closeSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, join } from 'node:path';
-import { getUsage } from './usage-api.js';
 
 // ============================================================================
 // Stdin Parsing
@@ -99,38 +98,32 @@ function formatRateLimits(rateLimits) {
 
   const parts = [];
 
-  // Calculate reset time in minutes from Date
+  // Unix timestamp (초) → 남은 분
   const getResetMinutes = (resetsAt) => {
     if (!resetsAt) return 0;
-    const now = Date.now();
-    const resetTime = resetsAt instanceof Date ? resetsAt.getTime() : new Date(resetsAt).getTime();
-    return Math.max(0, Math.floor((resetTime - now) / 60000));
+    return Math.max(0, Math.floor((resetsAt * 1000 - Date.now()) / 60000));
   };
 
-  // 5-hour limit (usage-api returns fiveHourPercent and fiveHourResetsAt)
-  if (typeof rateLimits.fiveHourPercent === 'number') {
-    const raw = rateLimits.fiveHourPercent;
-    const pct = Math.round(raw);
-    const resetMinutes = getResetMinutes(rateLimits.fiveHourResetsAt);
+  // 5-hour limit (stdin: five_hour.used_percentage, five_hour.resets_at)
+  const fiveHour = rateLimits.five_hour;
+  if (fiveHour && typeof fiveHour.used_percentage === 'number') {
+    const pct = fiveHour.used_percentage;
+    const resetMinutes = getResetMinutes(fiveHour.resets_at);
     const reset = formatDuration(resetMinutes);
-    // 5시간 = 300분, 경과 시간을 시간 단위로 변환, 5구간
     const elapsedHours = (300 - resetMinutes) / 60;
-    // 색상은 원본 값으로 계산, 표시는 반올림
-    const bar5h = allocationBar(raw, elapsedHours, 5);
-    parts.push(`\u231B ${bar5h} ${colorAllocationPercent(pct, raw, elapsedHours, 5)}(${reset})`);
+    const bar5h = allocationBar(pct, elapsedHours, 5);
+    parts.push(`\u231B ${bar5h} ${colorAllocationPercent(pct, pct, elapsedHours, 5)}(${reset})`);
   }
 
-  // Weekly limit (usage-api returns weeklyPercent and weeklyResetsAt)
-  if (typeof rateLimits.weeklyPercent === 'number') {
-    const raw = rateLimits.weeklyPercent;
-    const pct = Math.round(raw);
-    const resetMinutes = getResetMinutes(rateLimits.weeklyResetsAt);
+  // 7-day limit (stdin: seven_day.used_percentage, seven_day.resets_at)
+  const sevenDay = rateLimits.seven_day;
+  if (sevenDay && typeof sevenDay.used_percentage === 'number') {
+    const pct = sevenDay.used_percentage;
+    const resetMinutes = getResetMinutes(sevenDay.resets_at);
     const reset = formatDuration(resetMinutes);
-    // 168시간(7일), 경과 일수 계산, 7구간
     const elapsedDays = (168 - Math.max(1, resetMinutes / 60)) / 24;
-    // 색상은 원본 값으로 계산, 표시는 반올림
-    const bar7d = allocationBar(raw, elapsedDays, 7);
-    parts.push(`\uD83D\uDCC5 ${bar7d} ${colorAllocationPercent(pct, raw, elapsedDays, 7)}(${reset})`);
+    const bar7d = allocationBar(pct, elapsedDays, 7);
+    parts.push(`\uD83D\uDCC5 ${bar7d} ${colorAllocationPercent(pct, pct, elapsedDays, 7)}(${reset})`);
   }
 
   if (parts.length === 0) return null;
@@ -334,6 +327,9 @@ async function main() {
       return;
     }
 
+
+
+
     // ── Line 1: Model  Directory  Branch (powerline 세그먼트) ──
     const segments = [];
 
@@ -351,16 +347,10 @@ async function main() {
     // ── Line 2: Rate Limits | Session | Context ──
     const line2 = [];
 
-    try {
-      const rateLimits = await getUsage();
-      const limitsStr = formatRateLimits(rateLimits);
-      if (limitsStr) {
-        line2.push(limitsStr);
-      }
-      if (rateLimits?._error === 'auth') {
-        line2.push(yellow('[auth]'));
-      }
-    } catch { /* continue without usage data */ }
+    const limitsStr = formatRateLimits(stdin.rate_limits);
+    if (limitsStr) {
+      line2.push(limitsStr);
+    }
 
     const sessionStart = getSessionStartFromTranscript(stdin.transcript_path);
     if (sessionStart) {

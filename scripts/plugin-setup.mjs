@@ -39,7 +39,7 @@ if (!existsSync(HUD_DIR)) {
 }
 
 // 2. Backup & copy HUD files
-const hudFiles = ['statusline.mjs', 'usage-api.js'];
+const hudFiles = ['statusline.mjs'];
 for (const file of hudFiles) {
   const src = join(PLUGIN_ROOT, 'hud', file);
   const dest = join(HUD_DIR, file);
