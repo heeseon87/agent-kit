@@ -12,16 +12,10 @@ Run the setup script to configure the Tokyo Night powerline statusline.
 1. Find the plugin cache directory and run the setup script:
 
 ```bash
-node "$(find ~/.claude/plugins/cache -path '*/claude-kit/*/scripts/plugin-setup.mjs' -print -quit 2>/dev/null)"
+node -e "var path=require('path'),fs=require('fs'),root=path.join(require('os').homedir(),'.claude/plugins/cache');function walk(dir){for(var e of fs.readdirSync(dir,{withFileTypes:true})){var full=path.join(dir,e.name);if(e.isDirectory()&&e.name!='node_modules')walk(full);else if(e.name=='plugin-setup.mjs'&&full.includes('claude-kit')){require('child_process').execFileSync(process.execPath,[full],{stdio:'inherit'});process.exit(0)}}}walk(root)"
 ```
 
-2. If the above fails, try the direct path:
-
-```bash
-node ~/.claude/plugins/cache/hs/claude-kit/1.0.0/scripts/plugin-setup.mjs
-```
-
-3. After setup completes, tell the user to restart Claude Code to see the new statusline.
+2. After setup completes, tell the user to restart Claude Code to see the new statusline.
 
 ## What it does
 
