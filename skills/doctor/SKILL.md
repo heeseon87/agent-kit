@@ -1,5 +1,5 @@
 ---
-name: doctor
+name: claude-kit:doctor
 description: Diagnose and fix claude-kit statusline issues (broken paths, permissions, outdated settings)
 ---
 

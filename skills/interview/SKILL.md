@@ -1,5 +1,5 @@
 ---
-name: interview
+name: claude-kit:interview
 description: Interview me about the plan
 argument-hint: [plan]
 ---

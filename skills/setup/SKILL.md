@@ -1,12 +1,12 @@
 ---
-name: setup
-description: Initial setup for Tokyo Night statusline (for troubleshooting, use /doctor instead)
+name: claude-kit:setup
+description: Initial setup for Tokyo Night statusline (for troubleshooting, use /claude-kit:doctor instead)
 ---
 
 # Claude Kit Setup
 
 Run the setup script to configure the Tokyo Night powerline statusline.
-For troubleshooting existing installations, use `/doctor` instead.
+For troubleshooting existing installations, use `/claude-kit:doctor` instead.
 
 ## Steps
 

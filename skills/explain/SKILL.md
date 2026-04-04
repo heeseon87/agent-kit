@@ -1,5 +1,5 @@
 ---
-name: explain
+name: claude-kit:explain
 description: explain me about the target
 argument-hint: [target]
 ---
