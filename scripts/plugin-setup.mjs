@@ -77,7 +77,7 @@ try {
 console.log('[claude-kit] Setup complete!');
 console.log('');
 console.log('  Statusline: Tokyo Night powerline theme');
-console.log('  Skills:     /interview, /edit, /explain');
+console.log('  Skills:     /interview, /edit, /explain, /doctor');
 console.log(`  Backups:    ~/.claude/hud/backup/*${timestamp}.bak`);
 console.log('');
 console.log('  Restart Claude Code to see the new statusline.');

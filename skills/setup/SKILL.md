@@ -1,12 +1,12 @@
 ---
 name: setup
-description: Configure or update Tokyo Night statusline (run after install or plugin update)
+description: Initial setup for Tokyo Night statusline (for troubleshooting, use /doctor instead)
 ---
 
 # Claude Kit Setup
 
-Run the setup script to configure or update the Tokyo Night powerline statusline.
-Use this after initial install **or** after a plugin update to apply the latest settings.
+Run the setup script to configure the Tokyo Night powerline statusline.
+For troubleshooting existing installations, use `/doctor` instead.
 
 ## Steps
 
