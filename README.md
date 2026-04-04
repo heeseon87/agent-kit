@@ -13,6 +13,16 @@ Restart Claude Code, then:
 /claude-kit:setup
 ```
 
+## Troubleshooting
+
+If the statusline stops working (e.g. after switching node version managers):
+
+```
+/claude-kit:doctor
+```
+
+This checks node availability, file permissions, and settings.json configuration, then auto-fixes any issues found.
+
 ## Nerd Font Setup
 
 Statusline icons require a [Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases). We recommend JetBrainsMono Nerd Font.
