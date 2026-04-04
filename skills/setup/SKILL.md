@@ -1,11 +1,12 @@
 ---
 name: setup
-description: Configure Tokyo Night statusline after plugin install
+description: Configure or update Tokyo Night statusline (run after install or plugin update)
 ---
 
 # Claude Kit Setup
 
-Run the setup script to configure the Tokyo Night powerline statusline.
+Run the setup script to configure or update the Tokyo Night powerline statusline.
+Use this after initial install **or** after a plugin update to apply the latest settings.
 
 ## Steps
 
@@ -22,7 +23,7 @@ node -e "var path=require('path'),fs=require('fs'),root=path.join(require('os').
 - Backs up existing HUD files to `~/.claude/hud/backup/`
 - Copies `statusline.mjs` to `~/.claude/hud/`
 - Configures `settings.json` with the statusline command
-- Uses the absolute Node.js binary path for nvm/fnm compatibility
+- Uses shebang-based execution (`#!/usr/bin/env node`) — works with any node version manager (nvm/fnm/volta)
 
 ## After setup
 
