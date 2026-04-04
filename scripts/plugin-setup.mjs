@@ -61,12 +61,11 @@ try {
     settings = JSON.parse(readFileSync(SETTINGS_FILE, 'utf-8'));
   }
 
-  const nodeBin = process.execPath || 'node';
   const hudScriptPath = join(HUD_DIR, 'statusline.mjs');
 
   settings.statusLine = {
     type: 'command',
-    command: `"${nodeBin}" "${hudScriptPath}"`
+    command: `"${hudScriptPath}"`
   };
 
   writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
