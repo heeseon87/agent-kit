@@ -62,8 +62,8 @@ function getGitBranch(stdin) {
       timeout: 500,
     }).trim();
     // 긴 브랜치명 줄이기
-    if (branch.length > 35) {
-      return branch.substring(0, 32) + '...';
+    if (branch.length > 50) {
+      return branch.substring(0, 47) + '...';
     }
     return branch;
   } catch {
