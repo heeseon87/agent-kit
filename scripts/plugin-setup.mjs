@@ -6,7 +6,7 @@
  * Backs up existing HUD files and settings before overwriting.
  */
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, chmodSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, chmodSync, symlinkSync, unlinkSync, lstatSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +22,17 @@ const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
 
 const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 
+// marketplace 소스 경로 탐색 (자동 업데이트되는 디렉토리)
+function getSourceRoot() {
+  if (PLUGIN_ROOT.includes('/marketplaces/')) return PLUGIN_ROOT;
+  const m = PLUGIN_ROOT.match(/\/plugins\/cache\/([^/]+)\//);
+  if (m) {
+    const mp = join(CLAUDE_DIR, 'plugins', 'marketplaces', m[1]);
+    if (existsSync(join(mp, 'hud'))) return mp;
+  }
+  return PLUGIN_ROOT;
+}
+
 function backup(filePath) {
   if (!existsSync(filePath)) return;
   mkdirSync(BACKUP_DIR, { recursive: true });
@@ -36,21 +47,26 @@ console.log('[claude-kit] Running post-install setup...');
 // 1. Create HUD directory
 mkdirSync(HUD_DIR, { recursive: true });
 
-// 2. Backup & copy HUD files
+// 2. Symlink HUD files (marketplace 소스를 직접 참조 → 자동 업데이트 반영)
+const sourceRoot = getSourceRoot();
 const hudFiles = ['statusline.mjs'];
 for (const file of hudFiles) {
-  const src = join(PLUGIN_ROOT, 'hud', file);
+  const src = join(sourceRoot, 'hud', file);
   const dest = join(HUD_DIR, file);
   if (existsSync(src)) {
-    backup(dest);
-    copyFileSync(src, dest);
-    console.log(`[claude-kit] Installed ${file}`);
+    try {
+      const stat = lstatSync(dest);
+      if (!stat.isSymbolicLink()) backup(dest);
+      unlinkSync(dest);
+    } catch {} // dest가 없으면 무시
+    symlinkSync(src, dest);
+    console.log(`[claude-kit] Linked ${file} → ${src}`);
   }
 }
 
-// Make statusline executable
+// Make source executable
 try {
-  chmodSync(join(HUD_DIR, 'statusline.mjs'), 0o755);
+  chmodSync(join(sourceRoot, 'hud', 'statusline.mjs'), 0o755);
 } catch { /* Windows doesn't need this */ }
 
 // 3. Backup & configure settings.json
