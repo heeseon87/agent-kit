@@ -81,7 +81,8 @@ try {
 
   settings.statusLine = {
     type: 'command',
-    command: `"${hudScriptPath}"`
+    command: `"${hudScriptPath}"`,
+    refreshInterval: 1
   };
 
   writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
