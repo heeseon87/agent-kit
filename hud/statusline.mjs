@@ -103,13 +103,48 @@ function getInputMethod() {
       return null;
     }
     if (os === 'win32') {
-      // PowerShell 기반 — 레이아웃만 감지 (IME 내부 한/영 상태는 미지원)
-      const script = 'Add-Type -AssemblyName System.Windows.Forms;[System.Windows.Forms.InputLanguage]::CurrentInputLanguage.Culture.Name';
+      // Foreground window의 IME conversion mode를 Win32 API로 직접 조회.
+      // 한국어 키보드(langId 0x0412) + IME open + 한글 모드면 '가', 아니면 'A'.
+      // 한/영 키 토글(레이아웃은 그대로 둔 채 mode만 바뀜)도 정확히 잡음.
+      // .ps1 실행은 execution policy로 막히므로 -EncodedCommand로 인라인 전달.
+      const psScript = `
+$code = @'
+using System;
+using System.Runtime.InteropServices;
+public class IME {
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern IntPtr GetWindowThreadProcessId(IntPtr hwnd, IntPtr id);
+    [DllImport("user32.dll")] public static extern IntPtr GetKeyboardLayout(uint thread);
+    [DllImport("imm32.dll")] public static extern IntPtr ImmGetDefaultIMEWnd(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+    public static string Detect() {
+        IntPtr hwnd = GetForegroundWindow();
+        if (hwnd == IntPtr.Zero) return "A";
+        uint thread = (uint)GetWindowThreadProcessId(hwnd, IntPtr.Zero);
+        IntPtr layout = GetKeyboardLayout(thread);
+        int langId = layout.ToInt32() & 0xFFFF;
+        if (langId != 0x0412) return "A";
+        IntPtr ime = ImmGetDefaultIMEWnd(hwnd);
+        if (ime == IntPtr.Zero) return "A";
+        int open = (int)SendMessage(ime, 0x0283, (IntPtr)5, IntPtr.Zero);
+        if (open == 0) return "A";
+        int mode = (int)SendMessage(ime, 0x0283, (IntPtr)1, IntPtr.Zero);
+        return ((mode & 1) == 1) ? "ko" : "A";
+    }
+}
+'@
+Add-Type -TypeDefinition $code
+[IME]::Detect()
+`;
+      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
       const result = execSync(
-        `powershell -NoProfile -NoLogo -Command "${script}"`,
-        { encoding: 'utf-8', timeout: 1500, stdio: ['pipe', 'pipe', 'pipe'] }
-      ).trim();
-      return result === 'ko-KR' ? '가' : 'A';
+        `powershell -NoProfile -NoLogo -OutputFormat Text -EncodedCommand ${encoded}`,
+        { encoding: 'utf-8', timeout: 2500, stdio: ['pipe', 'pipe', 'pipe'] }
+      );
+      // 마지막 비어있지 않은 줄이 결과 ("ko" 또는 "A")
+      const lines = result.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const last = lines[lines.length - 1] || '';
+      return last === 'ko' ? '가' : 'A';
     }
   } catch {}
   return null;
