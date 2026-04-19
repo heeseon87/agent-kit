@@ -80,10 +80,10 @@ Fail diagnostics:
 
 ### 6. Reinstall (when files are missing or wrapper is stale)
 
-Run `/claude-kit:setup` (or invoke the script directly):
+Run `/claude-kit:setup` (or invoke the script directly — picks the highest cached version, never an older stale one):
 
 ```bash
-node -e "var path=require('path'),fs=require('fs'),root=path.join(require('os').homedir(),'.claude/plugins/cache');function walk(dir){for(var e of fs.readdirSync(dir,{withFileTypes:true})){var full=path.join(dir,e.name);if(e.isDirectory())walk(full);else if(e.name=='plugin-setup.mjs'&&full.includes('claude-kit')){require('child_process').execFileSync(process.execPath,[full],{stdio:'inherit'});process.exit(0)}}}walk(root)"
+node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.join(h,'.claude/plugins/cache'),r=[];function w(d){try{for(var e of fs.readdirSync(d,{withFileTypes:true})){var f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name=='plugin-setup.mjs'&&f.includes('claude-kit')){var v=p.basename(p.dirname(p.dirname(f)));if(/^[0-9]+\.[0-9]+\.[0-9]+$/.test(v))r.push([v,f])}}}catch(_){}}w(c);if(!r.length){console.error('plugin-setup.mjs not found in cache');process.exit(1)}r.sort(function(a,b){var x=a[0].split('.').map(Number),y=b[0].split('.').map(Number);for(var i=0;i<3;i++)if(x[i]!==y[i])return y[i]-x[i];return 0});require('child_process').execFileSync(process.execPath,[r[0][1]],{stdio:'inherit'})"
 ```
 
 The setup is idempotent — it backs up existing files, regenerates `statusline.cmd` (Windows) with the current node path, and rewrites the `statusLine` block in settings.json.
