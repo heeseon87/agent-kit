@@ -5,95 +5,101 @@ description: Diagnose and fix claude-kit statusline issues (broken paths, permis
 
 # Claude Kit Doctor
 
-Diagnose and automatically fix common statusline issues.
+Diagnose and automatically fix common statusline issues. **Adapt every check to the user's OS** (macOS/Linux vs Windows) — the expected statusLine entry differs:
+
+- **macOS/Linux**: `~/.claude/hud/statusline.mjs` is invoked directly via shebang.
+- **Windows**: `~/.claude/hud/statusline.cmd` is invoked, which then calls `node` with the `.mjs`.
 
 ## Steps
 
 Run these checks **in order**. Print each result as a checklist. If any check fails, fix it and re-verify.
 
+### 0. Detect platform
+
+Check `process.platform` (or run `uname` / `ver`). Use the correct command shape for each subsequent step. On Windows prefer `where` over `which`, `%USERPROFILE%` over `~`, and `cmd /c` for shell invocations.
+
 ### 1. Check node availability
 
-```bash
-which node && node --version
-```
+- macOS/Linux: `which node && node --version`
+- Windows: `where node && node --version`
 
-- Pass: node found in PATH
-- Fail: Tell user to install Node.js or configure their version manager
+Pass: node found.
+Fail: Tell user to install Node.js or configure their version manager. On Windows, the standard installer puts node at `C:\Program Files\nodejs\node.exe`.
 
-### 2. Check statusline.mjs exists
+### 2. Check HUD files exist
 
-```bash
-test -f ~/.claude/hud/statusline.mjs && echo "OK" || echo "MISSING"
-```
+The `.mjs` is required on every platform; the `.cmd` is required on Windows only.
 
-- Pass: File exists
-- Fail: Run the setup script to reinstall (see Step 5)
+- macOS/Linux: `test -f ~/.claude/hud/statusline.mjs && echo OK || echo MISSING`
+- Windows: `test -f "$USERPROFILE/.claude/hud/statusline.mjs" && test -f "$USERPROFILE/.claude/hud/statusline.cmd"` (or use `cmd /c "if exist ... echo OK"`)
 
-### 3. Check statusline.mjs is executable
+Fail: Run setup (Step 6).
 
-```bash
-test -x ~/.claude/hud/statusline.mjs && echo "OK" || echo "NOT_EXECUTABLE"
-```
+### 3. Check executable permissions (macOS/Linux only)
 
-- Pass: File is executable
-- Fix: `chmod 755 ~/.claude/hud/statusline.mjs`
+- macOS/Linux: `test -x ~/.claude/hud/statusline.mjs`
+- Windows: skip — `.cmd` is executable by virtue of its extension being in `PATHEXT`.
+
+Fix on Unix: `chmod 755 ~/.claude/hud/statusline.mjs`
 
 ### 4. Check settings.json statusLine command
 
-```bash
-cat ~/.claude/settings.json
-```
+Read `~/.claude/settings.json` and inspect `statusLine.command`. The expected value is one of:
 
-Inspect `statusLine.command` value. Look for these problems:
+- macOS/Linux: `"<homedir>/.claude/hud/statusline.mjs"` (with surrounding quotes inside the JSON string)
+- Windows: `"<homedir>/.claude/hud/statusline.cmd"` (with surrounding quotes inside the JSON string)
+
+Common problems:
 
 | Problem | Pattern | Fix |
 |---------|---------|-----|
-| Hardcoded node path | `"/path/to/node" "/path/to/statusline.mjs"` | Remove node path, keep only script path |
-| Missing statusLine | No `statusLine` key | Run setup script |
-| Wrong script path | Path doesn't end with `statusline.mjs` | Run setup script |
+| Hardcoded node path | `"/path/to/node" "/path/to/statusline.mjs"` | Run setup |
+| Missing statusLine | No `statusLine` key | Run setup |
+| Wrong extension on Windows | Path ends with `statusline.mjs` on Windows | Run setup (the new setup writes `.cmd` on Windows) |
+| Wrong extension on Unix | Path ends with `.cmd` on macOS/Linux | Run setup |
+| Path doesn't exist | File pointed at by command is missing | Run setup |
 
-**The correct format is:**
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "\"<homedir>/.claude/hud/statusline.mjs\""
-  }
-}
-```
+### 5. Verify the statusline actually runs
 
-If the command contains a node binary path (e.g. `.nvm/versions/`, `.fnm/`, `.volta/`), fix it by editing settings.json to remove the node path prefix — keep only the `"<script_path>"` part.
+Spawn the configured command exactly the way Claude Code does (with stdin) and inspect the output:
 
-### 5. Reinstall (if files are missing)
+- macOS/Linux:
+  ```bash
+  echo '{"model":{"display_name":"Opus"},"version":"2.0.0","workspace":{"current_dir":"/tmp"},"session_id":"x"}' | ~/.claude/hud/statusline.mjs
+  ```
+- Windows:
+  ```bash
+  echo {"model":{"display_name":"Opus"},"version":"2.0.0","workspace":{"current_dir":"C:\\tmp"},"session_id":"x"} | cmd //c "%USERPROFILE%\.claude\hud\statusline.cmd"
+  ```
 
-Only run this if Step 2 failed (statusline.mjs missing):
+Pass: produces text output containing ANSI escape codes (e.g. `\u001b[`).
+Fail diagnostics:
+- **Windows, "node not found" / "is not recognized"** → The `.cmd` wrapper points at a stale node path (likely after a node uninstall or version manager change). Re-run setup (Step 6).
+- **Unix, "permission denied"** → Step 3 fix.
+- **No output, exit 0** → Possibly a runtime crash silenced by Claude Code; run with stdin sample above to see the real error.
+
+### 6. Reinstall (when files are missing or wrapper is stale)
+
+Run `/claude-kit:setup` (or invoke the script directly):
 
 ```bash
 node -e "var path=require('path'),fs=require('fs'),root=path.join(require('os').homedir(),'.claude/plugins/cache');function walk(dir){for(var e of fs.readdirSync(dir,{withFileTypes:true})){var full=path.join(dir,e.name);if(e.isDirectory())walk(full);else if(e.name=='plugin-setup.mjs'&&full.includes('claude-kit')){require('child_process').execFileSync(process.execPath,[full],{stdio:'inherit'});process.exit(0)}}}walk(root)"
 ```
 
-### 6. Verify fix
-
-After any fix, run the statusline to confirm it works:
-
-```bash
-~/.claude/hud/statusline.mjs
-```
-
-- Pass: Outputs statusline text (may contain special characters — that's normal)
-- Fail: Show error to user
+The setup is idempotent — it backs up existing files, regenerates `statusline.cmd` (Windows) with the current node path, and rewrites the `statusLine` block in settings.json.
 
 ## Output format
 
 ```
-claude-kit doctor
-  [pass] node available (v22.x.x)
+claude-kit doctor (windows)
+  [pass] node available (v24.15.0)
   [pass] statusline.mjs exists
-  [pass] statusline.mjs is executable
-  [FAIL] settings.json has hardcoded node path → fixed
+  [pass] statusline.cmd exists
+  [pass] settings.json points at statusline.cmd
+  [FAIL] cmd wrapper references missing node path → re-ran setup
   [pass] statusline runs successfully
 
 All checks passed. Restart Claude Code to apply changes.
 ```
 
-Use `[pass]` and `[FAIL]` prefixes. If any fix was applied, remind the user to restart Claude Code.
+Use `[pass]` and `[FAIL]` prefixes. Print the detected platform on the header line. If any fix was applied, remind the user to restart Claude Code.

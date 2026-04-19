@@ -49,6 +49,18 @@ function linkOrCopy(src, dest) {
   }
 }
 
+// Windows는 .mjs를 직접 실행할 수 없음 (PATHEXT에 없음, shebang 무시).
+// node 절대경로를 호출하는 .cmd 래퍼를 생성해 settings.json에서 그걸 참조.
+// node 경로: 표준 인스톨러(%ProgramFiles%\nodejs\node.exe) → 환경변수로 참조 (마이너 버전 업그레이드 자동 추적)
+//            없으면 → 지금 실행 중인 node의 절대경로 (nvm-windows/fnm/volta 케이스)
+function resolveWindowsNodeRef() {
+  const programFiles = process.env.ProgramFiles || 'C:\\Program Files';
+  if (existsSync(join(programFiles, 'nodejs', 'node.exe'))) {
+    return '"%ProgramFiles%\\nodejs\\node.exe"';
+  }
+  return `"${process.execPath}"`;
+}
+
 function backup(filePath) {
   if (!existsSync(filePath)) return;
   mkdirSync(BACKUP_DIR, { recursive: true });
@@ -93,7 +105,22 @@ for (const file of copiedFiles) {
   } catch { /* Windows doesn't need this */ }
 }
 
-// 3. Backup & configure settings.json
+// 3. Windows에서는 .cmd 래퍼 생성 (Unix는 shebang으로 충분)
+let statusLineEntryPath;
+if (process.platform === 'win32') {
+  const cmdPath = join(HUD_DIR, 'statusline.cmd');
+  const nodeRef = resolveWindowsNodeRef();
+  // CRLF for batch file convention; %~dp0 = wrapper's own directory; %* passes args through
+  const cmdContent = `@echo off\r\n${nodeRef} "%~dp0statusline.mjs" %*\r\n`;
+  if (existsSync(cmdPath)) backup(cmdPath);
+  writeFileSync(cmdPath, cmdContent);
+  console.log(`[claude-kit] Wrote ${cmdPath} (node ref: ${nodeRef})`);
+  statusLineEntryPath = cmdPath;
+} else {
+  statusLineEntryPath = join(HUD_DIR, 'statusline.mjs');
+}
+
+// 4. Backup & configure settings.json
 try {
   let settings = {};
   if (existsSync(SETTINGS_FILE)) {
@@ -101,11 +128,9 @@ try {
     settings = JSON.parse(readFileSync(SETTINGS_FILE, 'utf-8'));
   }
 
-  const hudScriptPath = join(HUD_DIR, 'statusline.mjs');
-
   settings.statusLine = {
     type: 'command',
-    command: `"${hudScriptPath}"`,
+    command: `"${statusLineEntryPath}"`,
     refreshInterval: 1
   };
 

@@ -13,15 +13,23 @@ Restart Claude Code, then:
 /claude-kit:setup
 ```
 
+## Platform support
+
+Works on macOS, Linux, and Windows. On Windows, setup also generates `~/.claude/hud/statusline.cmd` — a thin wrapper that invokes node with the `.mjs` (since Windows can't execute `.mjs` directly via PATHEXT/shebang). The wrapper prefers `%ProgramFiles%\nodejs\node.exe` and falls back to the node binary that ran setup.
+
+**Re-run `/claude-kit:setup` after:**
+- Switching node installations (uninstalling/reinstalling, changing version managers)
+- Updating the plugin to a new version
+
 ## Troubleshooting
 
-If the statusline stops working (e.g. after switching node version managers):
+If the statusline stops working (e.g. after switching node version managers, or on Windows after a node path change):
 
 ```
 /claude-kit:doctor
 ```
 
-This checks node availability, file permissions, and settings.json configuration, then auto-fixes any issues found.
+This checks node availability, file permissions, settings.json configuration, and the `.cmd` wrapper on Windows, then auto-fixes any issues found.
 
 ## Nerd Font Setup
 
