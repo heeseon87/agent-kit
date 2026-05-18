@@ -250,6 +250,11 @@
 		<p>1차 초안에서 기존 explain의 <strong>콘텐츠 지침을 거의 버리고 디자인 시스템만 임베드</strong>한 SKILL.md를 작성했음. 사용자가 즉시 지적: "기존의 explain에 있던 내용을 완전히 버린건가? 내가 바란건 기존의 explain의 내용을 마크다운이 아니라 html로 만들어지길 바란거고 테마는 앤트로픽의 테마를 사용하길 바랬던거였어." <strong>수정</strong>: 두 SKILL.md 모두 기존 explain의 콘텐츠 지침("architecture, structure, why decisions, lessons, bugs, pitfalls, how good engineers think, analogies, anecdotes, very engaging, not boring textbook")을 <em>그대로 보존</em>하고, 그 아래에 <em>How to render</em> 섹션을 분리해서 디자인 시스템을 얹는 구조로 재작성. 콘텐츠 = 무엇을 말할까, 렌더 = 어떻게 보여줄까 — 두 관심사 분리.</p>
 	</div>
 
+	<div class="aside">
+		<div class="aside-label">Correction — v2: explain이 사실은 essay였음</div>
+		<p>새 세션에서 사용자가 <code>/claude-kit:explain</code> 테스트 → "완전히 다른 명령어가 된거 같아. 내용이 그냥 아주 긴 에세이 형식으로 나오던데?"라고 보고. 원인: 내가 <em>"essay 테마"</em>로 작성한 SKILL.md가 사실은 학술 long-form blog post 스타일(드롭캡 + 푸트노트 + 60px H1 + 5–10 numbered sections + pull quotes + ornaments)을 강제하고 있었음. 결과적으로 모든 explain 호출이 *기존의 가벼운 chat-tone explain*과 무관한 magazine-length essay로 출력됨. <strong>수정 (1.3.6)</strong>: explain 스킬을 셋으로 분리. (1) <code>explain</code> = 기존 마크다운 explain의 콘텐츠/분량을 유지하면서 Anthropic 테마만 입힌 가벼운 블로그-문서 톤 (H1 36–40px, body 18px / 1.7, no drop cap/footnotes/section numbers). (2) <code>explain-essay</code> = 기존 essay SKILL.md를 그대로 옮긴 long-form 학술 톤. (3) <code>explain-code</code> = 그대로 유지. 새 explain SKILL.md에 "<em>essay/code 스타일이 필요하면 그 스킬로 보내라</em>"는 분기 안내 명시.</p>
+	</div>
+
 	<h2><span class="num">04</span>고려한 대안과 기각 이유</h2>
 
 	<h3>대안 A: 단일 스킬 + 모드 플래그</h3>
