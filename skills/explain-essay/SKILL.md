@@ -1,6 +1,6 @@
 ---
 name: claude-kit:explain-essay
-description: Explain a target as a long-form essay HTML artifact in Anthropic's research-blog style — book-like single column, large serif headings, drop cap on the opening paragraph, footnotes, ornaments. Use when you want a scroll-worthy narrative piece, not a quick reference.
+description: Explain a target as a pure-prose, magazine-length essay HTML in Anthropic's research-blog style. Unlike /claude-kit:explain (which uses figures, tables, callouts), this variant leans almost entirely on narrative prose — drop cap, footnotes, ornaments, occasional pull quotes — for topics that deserve a long, scroll-worthy article without the structural ornaments. Use when the topic is conceptual/philosophical rather than systems-architectural.
 argument-hint: [target]
 ---
 
