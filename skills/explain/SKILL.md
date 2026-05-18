@@ -1,218 +1,83 @@
 ---
 name: claude-kit:explain
-description: Produce an engaging Anthropic-style HTML explainer artifact for any target (code path, endpoint, module, concept)
+description: explain me about the target — produces an engaging, narrative explainer rendered as an Anthropic-style HTML artifact opened in the browser
 argument-hint: [target]
 ---
 
-# Mission
+Explain the target — a file, endpoint, module, system, or concept — in plain language. Cover the technical architecture, how parts are connected, the technologies used, the *why* behind decisions, and the lessons one can take away (bugs encountered and how they were fixed, pitfalls and how to avoid them, the way good engineers think, best practices).
 
-Explain $1 by producing a **self-contained HTML artifact** that reads like an Anthropic research post — typography-driven, restrained, with diagrams that complement the prose rather than replace it. Anthropic's long-form blog (e.g. `anthropic.com/research/tracing-thoughts-language-model`) is the visual reference.
+It should be **engaging to read**, not boring documentation. Use analogies and anecdotes where they make abstract things stick. The goal: install an accurate mental model in the reader, not dump information.
 
-Save the file as `./<target-slug>-explained.html` in the current working directory, then open it (`open` on macOS, `xdg-open` on Linux) to verify rendering.
+## Output format
 
-# What to explain
+Render the explanation as an **Anthropic-style HTML artifact** — a self-contained `.html` file that mimics Anthropic's long-form essay aesthetic (cream background, coral accent, serif headings, sans-serif body, generous whitespace). The file goes in the project's current working directory and is opened in the browser immediately so the user can read it.
 
-Cover the dimensions the original instruction names:
+The HTML is the deliverable. Don't dump the whole explanation in chat first — go straight to writing the file.
 
-- The technical architecture and how the parts connect
-- The technologies used, and **why** — name the trade-offs
-- Lessons: pitfalls, bugs sidestepped, how good engineers reason about this kind of code
-- Best practices revealed by the code, written as concrete takeaways the reader can carry away
+## Workflow
 
-# Voice
+1. **Investigate the target.** Read the code, trace dependencies, run greps, understand the architecture. If the target is named ambiguously ("the auth flow", "the analyses endpoint"), use Grep/Read to pinpoint the actual files. Don't speculate — verify.
 
-- Engaging, **not textbook**. Use analogies and anecdotes (e.g. "비유하자면 카메라가 셔터를 누르고 인화까지 마친 사진을 우편으로 보내오면…").
-- First body paragraph gets a **serif drop cap** (62px, accent color).
-- Italic asides, pull quotes with a large quotation glyph, footnotes for sources or related patterns.
-- Section numbers as **italic serif `01`, `02`, …** prefixed to H2 (smaller than the H2 itself).
+2. **Identify the explanation skeleton.** Ask yourself:
+   - What's the *one big idea* a reader should leave with?
+   - What's the natural narrative order? (overview → flow → key decisions → lessons works well)
+   - Which aspects are *spatial / temporal / relational* and benefit from visualization? (architecture diagrams, sequence flows, parallelism, file trees)
+   - Where would an analogy or anecdote make a concept stick?
 
-# Output structure
+3. **Render to HTML.** Copy the template at `assets/template.html` to `{slug}-explained.html` in the current working directory. Fill in the content sections — keeping the CSS and JS exactly as-is. Read `references/components.md` for the available components and how to use them. Read `references/svg-patterns.md` if adding diagrams.
 
-```
-eyebrow  (uppercase tracked, accent-deep)
-H1       (60px serif)
-lede     (24px italic serif)
-byline   (path + filename:line)
-endpoint summary  (only when explaining an HTTP/RPC handler)
+4. **Open in browser.** `open {slug}-explained.html` on macOS, or `xdg-open` on Linux. Tell the user the file path.
 
-§01 H2  → narrative prose → optional Fig
-§02 H2  → narrative prose → optional Fig
-…
-9–11 sections, ending with takeaways and pitfalls
-ornament (· · ·)
-closing blockquote (one sentence)
-footnotes (sup-marked references)
-```
+## Content guidelines
 
-# Design tokens — verified against anthropic.com
+- **Write in the user's language.** If they're conversing in Korean, write the HTML content in Korean.
+- **Voice**: engaging, slightly literary, with an essayist's flair. Aim for the tone of an Anthropic research post — clear, generous with context, never condescending.
+- **Open with the headline insight.** The lede should already give away the most important point, not tease it.
+- **Sections are short.** 2-4 paragraphs per section is plenty. Long blocks of prose lose readers.
+- **Show real code excerpts** where they illuminate. Use the `<pre><code>` blocks the template provides. Keep snippets to 10-20 lines.
+- **End with takeaways.** What would a staff engineer want a junior to learn from this code? List 3-5 concrete lessons.
+- **Footnotes** for tangents (related patterns, prior art, references). Use `<sup><a href="#fn1">1</a></sup>` and the `.footnotes` block at the bottom.
 
-Inline these in `<style>`:
+## Visual element policy (this is the key upgrade)
 
-```css
-:root {
-  --bg:           #F5F4ED;   /* cream / book-cloth */
-  --bg-deep:      #EFEDE4;
-  --text:         #191917;   /* near-black */
-  --text-dim:     #4D483F;
-  --text-faint:   #8B8377;
-  --rule:         #D8D2C2;
-  --rule-strong:  #B8B1A1;
-  --accent:       #CC785C;   /* Anthropic clay */
-  --accent-deep:  #A75A40;
-  --accent-soft:  #ECC9B7;
-  --code-bg:      #1F1D1A;
-  --code-fg:      #EBE7DA;
-}
-```
+Visual elements **augment narrative, never replace it**. If you remove the diagram, the prose should still teach the concept. Common failure mode: replacing a written flow with a sequence diagram. Don't do that — keep the flow narrative AND add the diagram as a "here's the same thing in time-space" companion.
 
-# Typography (free Google Fonts substitutes)
+Add a diagram when:
+- The relationship is **spatial** (architecture, ERD, file tree)
+- The order is **temporal** (sequence of calls, transaction lifecycle)
+- There's **parallelism or branching** that's hard to express in linear text
+- A **path or hierarchy** matters (GCS paths, decision tree)
 
-- Headings — **Source Serif 4** (Tiempos substitute)
-- Body — **Inter** (Styrene B substitute) at **19px / line-height 1.75** ← this single choice is what gives the "book-like" feel, do not shrink
-- Mono — **JetBrains Mono**
-- H1 60px / weight 500, H2 30px / weight 500, lede 24px italic serif
-- Container `max-width: 720–760px` (measure ≈ 65–75 chars)
+Don't add a diagram for:
+- A list of takeaways (those are textual)
+- A code excerpt (the code is the diagram)
+- Anything you've already explained well in prose
 
-# Layout principles
+Use at most **one animation** in the whole document — at the most dynamic point (typically parallelism or fan-out/join). One spotlight, not five.
 
-**Do not:**
-- Wrap every section in a card — Anthropic articles are nearly *flat*, with no visible boxes around prose
-- Use gradients anywhere
-- Use colored-background callouts for "Insight"/"Warn" — use a **2px left border** in accent color instead
-- Replace narrative with a diagram — the diagram must *follow* the prose it illustrates, not substitute it
+## Technical patterns to follow
 
-**Do:**
-- Use lots of vertical whitespace (80px before each H2)
-- Use italic serif labels for tagging (`Insight`, `i.`, `ii.`, `Fig 1`)
-- Restrict color to a single accent (clay) — no second hue
-- Add an ornament `· · ·` between major sections for breathing
-- Footnotes via `<sup><a href="#fnN">N</a></sup>` and a bottom `<ol class="footnotes">`
+These are non-obvious traps from prior iterations. Following them up front saves multiple rewrite cycles:
 
-# When and how to add visual elements
+- **SVG line-draw**: always use `path.getTotalLength()` to set dasharray dynamically. Fixed values like `stroke-dasharray: 200` will clip curves. The template's JS handles this — just use the `.parallel-line` class.
+- **SVG markers (`marker-end`)**: cannot be hidden by `stroke-dashoffset`. Either omit them and let lines terminate at box edges, or fade in a separate polygon via opacity after the line completes.
+- **Replay buttons**: CSS animation set to `forwards` doesn't re-trigger. Use CSS transition + JS reset (transition='none' → force reflow → re-apply). The template includes this pattern in the IIFE at the bottom.
+- **CJK + ASCII alignment**: never align with whitespace padding — CJK characters have different widths than ASCII even in monospace. Use CSS grid `grid-template-columns: max-content 1fr` for file trees or two-column data. The template's `.tree` class does this.
+- **`prefers-reduced-motion`**: respect it. The template's JS already short-circuits animations when this media query matches.
 
-A diagram earns its place only when it shows something prose handles poorly:
+## File naming and location
 
-- **Spatial structure** — ERD, file tree, module graph
-- **Temporal sequence** — request flow, async fan-out/join, transaction interior
-- **Decision branching** — idempotency check, auth gates
-- **File / path structure** — GCS bucket layout, directory hierarchy
+Save the artifact as `<topic-slug>-explained.html` in the current working directory (where the user invoked the command). Use kebab-case for the slug — e.g., `post-analyses-explained.html`, `auth-flow-explained.html`, `payment-domain-explained.html`. After writing, open it with the OS default browser.
 
-Aim for **3–5 figures** in a typical explainer. Number them `Fig 1`, `Fig 2`, … with italic serif captions below.
+## Anti-patterns
 
-**SVG style:**
-- Hairline strokes (1.2–1.5)
-- No fills (rect `fill="none"`), no shadows
-- Color: `var(--text)` for static structure, `var(--accent)` only for emphasis
-- Internal labels: Source Serif italic, fill `var(--accent-deep)`
-- viewBox-based, `width: 100%; height: auto` for responsiveness
+- **Don't** dump the explanation in chat before writing the file. Write the file first, then summarize what's in it.
+- **Don't** use card-heavy UI with colored backgrounds — Anthropic's actual style is typography-centric with hairlines and a single accent.
+- **Don't** add gradients, drop shadows, or rounded corners beyond 4-6px.
+- **Don't** replace narrative flow lists with sequence diagrams — keep both.
+- **Don't** use more than one animation per document.
+- **Don't** anchor to user-provided labels for the slug or title without rephrasing for clarity (e.g., if user says "explain X", consider what X actually is and title accordingly).
 
-**Place SVG after the prose it illustrates, not before or in place of.**
+## When you're done
 
-# Animation — at most ONE figure animated
-
-Animate only the single most dynamic moment (typically parallel async behavior). Use this exact recipe:
-
-```javascript
-(function () {
-  const fig = document.getElementById('animFig');
-  if (!fig) return;
-  const lines = Array.from(fig.querySelectorAll('.anim-line'));
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // CRITICAL: measure each path's real length — never use a fixed dasharray
-  const lengths = lines.map((line) => {
-    const len = line.getTotalLength();
-    line.style.strokeDasharray = len;
-    line.style.strokeDashoffset = reducedMotion ? 0 : len;
-    return len;
-  });
-
-  function animate() {
-    if (reducedMotion) return;
-    // Reset
-    lines.forEach((line, i) => {
-      line.style.transition = 'none';
-      line.style.strokeDashoffset = lengths[i];
-    });
-    void fig.getBoundingClientRect();  // force reflow before re-applying transition
-    // Stagger reveal
-    lines.forEach((line, i) => {
-      const delay = 0.05 + i * 0.12;
-      line.style.transition = `stroke-dashoffset 0.7s ease-out ${delay}s`;
-      line.style.strokeDashoffset = '0';
-    });
-  }
-
-  new IntersectionObserver((entries, obs) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) { animate(); obs.unobserve(e.target); }
-    });
-  }, { threshold: 0.35 }).observe(fig);
-
-  window.replayAnim = animate;  // wire to replay button
-})();
-```
-
-Provide a small **replay** button next to the figcaption (`onclick="replayAnim()"`).
-
-# SVG markers — do NOT use `marker-end` on animated paths
-
-`<marker>` ignores `stroke-dashoffset` and renders at the path's logical endpoint regardless of animation state. The arrowhead appears at the destination *before* the line is drawn — a known SVG quirk with no clean fix.
-
-**Solution:** omit `marker-end` entirely on animated paths. The line terminating at a box edge gives enough directional signal. If an arrow is essential (e.g. final commit step), use it only on *static* paths.
-
-# CJK + ASCII alignment trap
-
-Korean comments next to English file names **cannot** be aligned with whitespace padding — CJK glyphs are wider than ASCII even in monospace fonts. Always use a CSS grid:
-
-```html
-<div class="tree">
-  <div class="path">gs://<span class="dir">bucket</span>/</div><div class="note"></div>
-  <div class="path"><span class="branch">└──</span> <span class="var">{userId}</span>/</div><div class="note">Firebase UID</div>
-  <div class="path">    <span class="branch">└──</span> meta.json</div><div class="note">메타 정보</div>
-</div>
-```
-
-```css
-.tree {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  column-gap: 32px;
-  padding: 22px 28px;
-  background: var(--bg-deep);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-}
-.tree .path { font-family: 'JetBrains Mono', monospace; white-space: pre; font-size: 13px; line-height: 1.85; }
-.tree .note { font-family: 'Source Serif 4', serif; font-style: italic; color: var(--text-faint); font-size: 13.5px; align-self: center; }
-.tree .note:not(:empty)::before { content: "— "; color: var(--rule-strong); margin-right: 2px; }
-.tree .path .dir, .tree .path .var { color: var(--accent-deep); }
-.tree .path .var { font-style: italic; }
-.tree .path .branch { color: var(--text-faint); }
-```
-
-# Process
-
-1. **Orient.** Read the target file(s). Trace dependencies. Note the surprising decisions, the trade-offs, the non-obvious patterns.
-2. **Outline.** 8–12 sections numbered `01` through `12` with H2 titles. Start with "what this really does" (often counter-intuitive), end with takeaways and pitfalls.
-3. **Write the prose first.** Engaging tone, with analogies. Each section gets 2–4 paragraphs. Drop cap on the first body paragraph.
-4. **Mark visual moments.** Identify 3–5 spots where a diagram clarifies more than text would. Insert SVG figures *after* the corresponding prose, numbered and captioned.
-5. **Pick one for animation.** Usually the most dynamic concept (async fan-out, parallel writes). Apply the recipe above strictly — `getTotalLength()`, IntersectionObserver, replay button, `prefers-reduced-motion` fallback.
-6. **Add footnotes** for related patterns or papers (Stripe Idempotency-Key, Strangler Fig, etc.).
-7. **Close** with an ornament and a single italic blockquote summarizing the whole.
-8. **Save** as `./<target-slug>-explained.html`. **Open** in the default browser to verify rendering. Mention the file path in the chat reply.
-
-# Don'ts (common mistakes to avoid on the first build)
-
-- ❌ Card-heavy layout — Anthropic articles are nearly card-free
-- ❌ Multiple accent colors — stay clay-only
-- ❌ Gradients — never
-- ❌ Fixed `stroke-dasharray` values for line-draw animations
-- ❌ `marker-end` on animated paths
-- ❌ Whitespace padding for CJK column alignment
-- ❌ Diagram instead of prose — diagram is *always* a supplement
-- ❌ Body font smaller than 18px — book-like means readable
-
-# When the target is ambiguous
-
-If `$1` is missing or vague, ask the user once for clarification (a file path, an endpoint, a module name) before producing the artifact. Do not guess at scope.
+Tell the user: "Saved to `<path>` and opened in your browser." That's it. Don't re-explain the content in chat — they can read it.
