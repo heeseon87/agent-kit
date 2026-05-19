@@ -1,263 +1,132 @@
-# Components Reference
-
-Concrete usage examples for the building blocks defined in `assets/template.html`. Read this when filling in the template — these snippets are copy-paste ready.
-
-## Component selection guide
-
-| When you want to convey | Use |
-|---|---|
-| Headline insight (1 sentence) | `.lede` (italic serif) |
-| API endpoint metadata | `.endpoint` (definition list) |
-| Sequential narrative steps | `.flow` (ol with hanging serif numbers) |
-| Steps grouped under one parent | `.tx-block` (accent left border, nested ol) |
-| Surprising/non-obvious takeaways | `.insight` (left-accent callout) |
-| Caution, pitfall, "shadow side" | `.aside` (gray left border) |
-| Memorable single line | `<blockquote>` (large italic serif with " glyph) |
-| Lessons/principles list | `.takeaway` (roman numeral + serif title) |
-| Hierarchical paths/files | `.tree` (two-column grid) |
-| Tabular data | `<table class="t-wrap">` (hairline rows) |
-| Reference/citation | `<sup>` + `.footnotes` |
-| Section break | `.ornament` (· · ·) or `.hr-soft` |
-
-## Masthead
-
-```html
-<p class="eyebrow">Endpoint Explainer · ProjectName</p>
-<h1>한 번의 POST 뒤에 숨은 합주</h1>
-<p class="lede">스윙 한 컷을 영속화하는 일 — 그 안에서 일어나는 세 도메인 동시 쓰기, 클라우드 업로드, 멱등성의 사중주.</p>
-<p class="byline"><strong>POST /v2.0/users/{user-id}/analyses</strong> &nbsp;·&nbsp; AnalysisController.kt:48</p>
-```
-
-The lede should already give away the most important insight. Don't tease — Anthropic essays open with the punch.
-
-## Endpoint metadata
-
-For HTTP endpoints. Skip entirely for explaining a class, concept, or module.
-
-```html
-<dl class="endpoint">
-  <dt>Method</dt>
-  <dd><span class="method-tag">POST</span><code>/v2.0/users/{user-id}/analyses</code></dd>
-  <dt>Auth</dt>
-  <dd><code>@adminRule.isAdmin() or @userResourceRule.isOwn(#userId)</code></dd>
-  <dt>Request</dt>
-  <dd><code>CreateAnalysisReq</code> — analysis meta + analyticsStatus + swing body</dd>
-  <dt>Response</dt>
-  <dd><code>CreateAnalysisRes(id: UUID)</code> &nbsp;<span style="color:var(--text-faint)">200 OK</span></dd>
-</dl>
-```
+# Component Catalog
 
-## Section heading with italic number
-
-```html
-<h2><span class="num">01</span>분석은 이미 끝나 있다</h2>
-```
+A catalog of the visual components available in `assets/shell.html`. **Each entry tells you what the component is *for* — when its meaning fits.** It does not tell you where to put it or what should come before or after. That is your decision, made for the specific target you're explaining.
 
-The italic serif number gives a subtle academic-essay feel. Number all major sections sequentially.
+Read this when you have a question like *"I want to convey X — what fits?"* — not before you've thought about what the page needs to say.
 
-## Drop cap on first paragraph
+---
 
-```html
-<p class="body-start">이름만 보면 "분석을 새로 만든다" 같이 보입니다. 그러나 코드를 열어 보면 정작 <strong>"분석"</strong>은 이미 끝나 있습니다...</p>
-```
+## Primitives (always available, used as needed)
 
-Apply `.body-start` to the very first body paragraph of the document. Don't use it on subsequent paragraphs — it loses its punch.
+### `<h1>`, `<h2>`, `<h3>`
+Serif headings, sized for hierarchy. `<h2>` can take an italic number prefix via `<span class="num">01</span>` when you want academic-essay numbering, but bare headings are equally valid.
 
-## Insight callout
+### `<p>` — body paragraph
+Standard prose. 19px sans-serif at line-height 1.75 — book-like density.
 
-Use 2-4 times in a document, at moments of revelation. The label is italic serif, content is a 2-3 item dash list.
+### `.body-start` — drop-cap paragraph
+A first letter set in large serif accent. Use it **once per document**, on the paragraph where you want to mark "the real prose starts here." More than once dilutes the effect.
 
-```html
-<div class="insight">
-  <div class="insight-label">Insight</div>
-  <ul>
-    <li>이 API는 "분석 수행"이 아니라 <strong>"분석 결과 영속화"</strong>다.</li>
-    <li>UUID를 클라이언트가 만든다 — 서버가 부여하지 않는다.</li>
-    <li>한 번의 요청이 <strong>최소 3개 도메인</strong>을 동시에 건드린다.</li>
-  </ul>
-</div>
-```
-
-Keep items short and surprising. If the reader would have guessed it, leave it out.
-
-## Narrative flow list
-
-The default way to show "X happens, then Y, then Z." Each step gets an italic serif number and a hairline connector to the next.
-
-```html
-<ol class="flow">
-  <li>
-    <div class="step-title">FirebaseTokenFilter → SecurityFilterChain</div>
-    <div class="step-desc">Firebase JWT를 검증해 <code>SecurityContext</code>에 principal을 채운다.</div>
-  </li>
-  <li>
-    <div class="step-title">@PreAuthorize 인가 검사</div>
-    <div class="step-desc">관리자거나, path의 <code>{user-id}</code>가 본인이어야 통과.</div>
-  </li>
-</ol>
-```
-
-## Nested sub-flow (transaction block)
-
-For when one step in the flow contains several sub-steps. The accent-colored left border + label-on-the-corner is a signature pattern.
+### `<blockquote>` — pull quote
+A line that deserves to ring. Big italic serif with a hanging quote glyph. The quote mark is drawn by CSS — don't include literal `"` in your text. Use sparingly: 0–3 per document.
 
-```html
-<div class="tx-block">
-  <ol>
-    <li><strong>saveV1</strong> — legacy path<span class="desc">writes to old tables for backward compat</span></li>
-    <li><strong>saveV2</strong> — new path<span class="desc">writes to normalized new schema</span></li>
-    <li><strong>uploadDraw</strong> — GCS upload<span class="desc">parallel coroutines on virtual thread</span></li>
-  </ol>
-</div>
-```
+### `<pre><code>` — code excerpt
+Dark monospace block. Spans inside for syntax color: `.k` (keyword), `.fn` (function), `.s` (string), `.c` (comment, italic), `.n` (default). Keep excerpts short — if the snippet is long, your prose is doing too little.
 
-Override the corner label by setting `content:` inline if "TRANSACTION" isn't appropriate:
+### `<code>` — inline code
+Accent-colored monospace inline. Use for identifiers, file paths, short literal values.
 
-```html
-<div class="tx-block" style="--label: 'PHASE 2'">
-```
+### `.hr-soft`, `.ornament`
+Section breaks. `.hr-soft` is a hairline rule. `.ornament` is centered `· · ·` in italic serif — more ceremonial. Reach for either when prose alone doesn't signal "we're shifting gears."
 
-(or just edit the CSS pseudo-element if reused often).
+---
 
-## Code excerpt
+## Headed front-matter
 
-Use `<pre><code>` with span classes for syntax highlighting:
+### `.eyebrow`
+Small uppercase tracked label, accent-deep colored. Often used above an `<h1>` for a kicker (publication name, doc type). Not required — bare `<h1>` is fine.
 
-```html
-<pre><code><span class="k">fun</span> <span class="fn">createAnalysis</span>(req: Req): UUID {
-    <span class="k">if</span> (analysisRepo.existByUUID(req.id))
-        <span class="k">return</span> req.id   <span class="c">// idempotent fast path</span>
+### `.lede`
+Italic serif sentence after the title. The headline insight — written so a reader who reads *only* this line still walks away with the point. The page's job is to expand on this; if your lede doesn't already give the gist, rewrite it.
 
-    <span class="k">return</span> <span class="fn">tx</span> { ... }
-}</code></pre>
-```
+### `.byline`
+Small sans-serif line for context (subject path, file location, date). Use when readers benefit from knowing "where this lives in the codebase." Skip for conceptual explanations.
 
-Available classes:
-- `.k` — keyword (orange)
-- `.fn` — function name (amber)
-- `.s` — string (amber)
-- `.c` — comment (gray italic)
-- `.n` — normal identifier (default)
+---
 
-Keep excerpts to 10-20 lines. Cut anything not essential to the point you're making.
+## Structural prose components
 
-## Pull quote
+### `.meta` — definition list
+Borderless `<dl>` with hairline rules above and below, two-column grid. Use when you have a small set of *named facts* a reader wants at a glance — endpoint metadata, configuration parameters, identifier mappings. Don't use it for prose; use it for *short labeled values*.
 
-Big italic serif sentence. Use 1-3 per document, at moments where a phrase deserves to ring.
+### `.method-tag`
+Small dark pill for HTTP methods (`POST`, `GET`, etc.) inside `.meta`. Only when explaining an HTTP endpoint.
 
-```html
-<blockquote>DB는 검색해야 할 데이터를 위한 곳, Storage는 통째로 가져올 데이터를 위한 곳.</blockquote>
-```
+### `.steps` — ordered list with hanging numerals
+Each item gets an italic serif number and a hairline connector to the next. Use when something happens *in order* and the order matters. Don't use it for an unordered set of facts (use prose or `.callout` instead).
 
-The " glyph is drawn automatically via the `::before` pseudo-element. Don't include literal quote marks in the text.
+### `.nest` — nested sub-group
+A left accent rail around a deeper inner ordered list. Use when one step in `.steps` contains several sub-steps (e.g., a transaction encloses four operations). Pass `data-label="..."` to label the rail (`TRANSACTION`, `PHASE 2`, etc.); omit for an unlabeled group.
 
-## Aside / cautionary note
+### `.callout` — left-accent callout
+A minimal block: italic serif label + dash list. Use it for **2-3 sentences of insight that earn their own breathing room** — the surprising point, the non-obvious connection. Don't overuse: more than 4-5 per document and they stop being callouts. If everything is a callout, nothing is.
 
-For things that need attention but aren't the main thrust — "watch out for this", "there's a shadow side here":
+Suggested labels (you choose what fits): `Insight`, `Surprise`, `Why it matters`, `Key idea`. A label that names the *intent* of the callout beats a generic one.
 
-```html
-<div class="aside">
-  <div class="aside-label">한 가지 그늘 — 트랜잭션 안의 외부 I/O</div>
-  <p style="margin:0">업로드 중 일부가 성공하고 다음에서 예외가 터지면, DB는 롤백되지만 GCS에 이미 올라간 파일은 그대로 남습니다.</p>
-</div>
-```
+### `.aside` — softer side note
+Like `.callout` but with a gray border instead of accent. Use for caution, edge cases, or "the shadow side" — content that's important but tonally quieter than an insight. The visual softness signals "this is a complication, not a revelation."
 
-## File tree
+### `.lesson` — takeaway
+Inline italic tag + serif title + dim body. Use for portable lessons — what a senior would tell a junior. Tag with roman numerals (`i.`, `ii.`), prose categories (`Pattern`, `Caution`), or any short marker. Useful as a closing block, but not the only way to close.
 
-Use the two-column grid pattern. The left column has the ASCII tree (in monospace, preserving whitespace), the right column has annotations. CSS handles alignment — never try to align with whitespace padding.
+---
 
-```html
-<div class="tree" role="img" aria-label="GCS path structure">
-  <div class="path">gs://<span class="dir">bucket-name</span>/</div><div class="note"></div>
-  <div class="path"><span class="branch">└──</span> <span class="var">{userId}</span>/</div><div class="note">Firebase UID</div>
-  <div class="path">    <span class="branch">└──</span> <span class="dir">swing</span>/</div><div class="note"></div>
-  <div class="path">        <span class="branch">└──</span> <span class="var">{swingId}</span>/</div><div class="note">UUID</div>
-  <div class="path">            <span class="branch">└──</span> <span class="dir">draw</span>/</div><div class="note"></div>
-  <div class="path">                <span class="branch">├──</span> meta.json</div><div class="note">메타 정보</div>
-  <div class="path">                <span class="branch">└──</span> skeleton.json</div><div class="note">관절 스켈레톤</div>
-</div>
-```
+## Diagrams and tables
 
-Span classes for path styling:
-- `.dir` — directory name (accent, semi-bold)
-- `.var` — variable placeholder like `{userId}` (accent italic)
-- `.branch` — tree connectors `└──` `├──` (muted gray)
+### `<figure>` + `<svg>` + `<figcaption>`
+For diagrams. Caption is italic serif centered, prefixed by `<span class="fig-num">Fig N</span>`. The caption should make the *insight* explicit, not describe what's drawn — a reader who sees only the caption should still get the point.
 
-Empty `<div class="note"></div>` is required for grid alignment even when there's no annotation.
+See `references/svg-patterns.md` for four patterns: ERD, sequence, fan-out/join (with animation), decision tree. Use a diagram when the relationship is spatial, temporal, or branching in a way that linear prose can't carry. Skip it when prose already makes the idea clear.
 
-## Tables
+### `<table>` (inside `.t-wrap`)
+Hairline rows, no zebra striping. Use for genuinely tabular data — 3+ columns of parallel facts. For 2 columns with 3 rows, prose or a `.callout` is usually clearer.
 
-Plain hairline tables. No zebra striping, no card background.
+### `.tree` — file/path hierarchy
+Two-column CSS grid: left column is monospace path (with ASCII tree connectors), right column is italic serif annotations. The grid handles alignment automatically — never use whitespace padding to align comments (especially with CJK characters, where it always breaks). See the inner spans `.path .dir`, `.path .var`, `.path .branch`, `.note` for styling parts of each row.
 
-```html
-<div class="t-wrap">
-<table>
-  <thead><tr><th>Field</th><th>Role</th><th>Why separate</th></tr></thead>
-  <tbody>
-    <tr><td><code>analysis</code></td><td>diagnostic metadata</td><td>represents intent at a moment</td></tr>
-    <tr><td><code>swing</code></td><td>full swing body</td><td>not 1:1 with analysis</td></tr>
-  </tbody>
-</table>
-</div>
-```
+---
 
-Use sparingly — 3-5 columns max. If a table has only 2 columns and 3 rows, consider an `.insight` or `.takeaway` block instead.
+## Closing apparatus
 
-## Takeaways
+### `.footnotes`
+Numbered footnotes at the document end with a thin rule above. Reference from the body with `<sup><a href="#fn1">1</a></sup>`. Use for tangents, prior art, citations — content that would interrupt the body if inline. Also a good place for a final "Source · `path/to/file.ext`" line.
 
-The closing section. Use roman numeral tags and serif titles. 3-5 lessons is the sweet spot.
+### `<sup>` markers in body
+Tiny superscript reference. The link goes to the matching `<li id="fnN">` in `.footnotes`.
 
-```html
-<h2><span class="num">N</span>이 코드에서 배워 갈 것</h2>
+---
 
-<div class="takeaway">
-  <span class="takeaway-tag">i.</span><span class="takeaway-title">트랜잭션 경계는 "비즈니스 한 가지가 끝나는 지점"이지 메서드 끝이 아니다.</span>
-  <div class="takeaway-body">이 서비스는 <code>@Transactional</code>을 메서드에 붙이지 않고, 의도된 4단계만 묶이도록 <code>tx { }</code>로 둘러쌌다. 트랜잭션을 "넓게" 잡는 습관은 락 시간을 늘리고 성능을 깎는다.</div>
-</div>
-```
+## Picking components — the rule
 
-The title goes on one line (1-2 sentences max). The body explains why it matters.
-
-## Footnotes
-
-For asides that don't fit in the body. Use `<sup>` markers and the `.footnotes` block at the document end.
-
-In body:
-```html
-ID는 클라이언트가 부여하고<sup><a href="#fn1">1</a></sup>...
-```
-
-At document end:
-```html
-<div class="footnotes">
-  <ol>
-    <li id="fn1">클라이언트가 UUID를 만드는 패턴은 Stripe의 <code>Idempotency-Key</code> 헤더와 본질적으로 같다.</li>
-    <li id="fn2">Martin Fowler, <em>StranglerFigApplication</em> (2004).</li>
-  </ol>
-  <p style="margin-top:24px; font-size:13px; color:var(--text-faint)">Source · <code>path/to/file.ext:48</code></p>
-</div>
-```
-
-The Source line at the bottom is mandatory — it lets readers find the actual code.
-
-## Section break / ornament
-
-Three small dots, centered, italic serif. Use sparingly — once or twice per document, at major narrative turns.
-
-```html
-<div class="ornament">· · ·</div>
-```
-
-Or a quiet horizontal rule for less ceremony:
-
-```html
-<hr class="hr-soft">
-```
-
-## Common mistakes
-
-- Using `.insight` or `.aside` more than 4-5 times — they lose impact. Most content should be plain prose.
-- Adding `.body-start` to paragraphs other than the very first. Drop cap is once per document.
-- Forgetting the empty `<div class="note"></div>` cell in `.tree` — breaks the grid alignment.
-- Including literal `"` characters in `<blockquote>` — the glyph is drawn by CSS.
-- Adding background colors to insight/aside boxes — they should remain on the page background with only the left border for accent.
+The components above are *tools*. The right tool depends on what you're trying to convey at that moment:
+
+- A *headline insight* → `.lede` or `.callout`
+- A *list of ordered actions* → `.steps`
+- A *list of unordered facts* → prose, or `.callout` if they're insights
+- A *cluster of named labels and values* → `.meta` or `<table>`
+- A *spatial/temporal relationship* → `<figure>` with SVG
+- A *single ringing sentence* → `<blockquote>`
+- A *named caution or complication* → `.aside`
+- A *portable lesson to leave the reader with* → `.lesson`
+- A *tangent or citation* → `<sup>` + `.footnotes`
+
+What you're free to invent:
+- The order of sections
+- Whether to have numbered `<h2>` headings or unnumbered ones, or none
+- Whether to open with a quote, a question, a code excerpt, or prose
+- How many callouts, how many figures, how many lessons
+- Whether to close with takeaways, a quote, or just a final paragraph
+
+There is no canonical structure. There is the structure *this* target needs.
+
+---
+
+## Common mistakes to avoid
+
+- **Using `.callout` more than 4-5 times.** They lose their impact. Most content should be prose.
+- **Adding `.body-start` to multiple paragraphs.** Drop cap is once per document.
+- **Forcing a `<table>` for two-column data.** Prose or `.callout` is often clearer.
+- **Adding background colors to `.callout` or `.aside`.** They should stay on the page background — the left border is the entire accent.
+- **Forgetting the empty `<div class="note"></div>` cell in `.tree` rows.** The grid needs both cells per row to align.
+- **Using `<h1>` more than once.** It's the page title.
+- **Including literal quotation marks in `<blockquote>`.** The CSS draws the opening glyph.

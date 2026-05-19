@@ -1,18 +1,24 @@
 <!--
-	Anthropic-style Explainer Template
-	-----------------------------------
+	Anthropic-style Explainer Shell
+	-------------------------------
+	A blank canvas with the visual language baked in. The body is intentionally empty —
+	you, the agent, design the page structure based on the target you're explaining.
+
 	HOW TO USE:
 	1. Copy this file to <slug>-explained.html in the current working directory.
-	2. Edit ONLY the content inside <body>. Leave <head>, <style>, and <script> intact.
-	3. Replace {{...}} placeholders. Remove sections you don't need.
-	4. See references/components.md for component examples.
+	2. Set <html lang="..."> and <title> based on the target.
+	3. Write your content inside <div class="container">. There is no prescribed order
+	   of sections — design what serves the reader.
+	4. Use components from references/components.md as a catalog (not a checklist).
+	5. The animation script at the bottom is opt-in: it only activates if you add an
+	   SVG figure with id="parallelFig" and paths with class="parallel-line".
 -->
 <!DOCTYPE html>
-<html lang="{{LANG e.g. ko, en}}">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{{PAGE TITLE}}</title>
+<title>Explainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -58,6 +64,8 @@
 		margin: 0 auto;
 		padding: 88px 28px 140px;
 	}
+
+	/* ── Typographic primitives ── */
 
 	.eyebrow {
 		font-family: 'Inter', sans-serif;
@@ -107,7 +115,6 @@
 		margin: 80px 0 24px;
 		color: var(--text);
 	}
-
 	h2 .num {
 		font-style: italic;
 		font-weight: 400;
@@ -201,8 +208,10 @@
 		opacity: 0.7;
 	}
 
-	/* Endpoint / Summary metadata block */
-	.endpoint {
+	/* ── Optional components — use when the meaning calls for it ── */
+
+	/* Metadata block — borderless dl */
+	.meta {
 		border-top: 1px solid var(--rule-strong);
 		border-bottom: 1px solid var(--rule-strong);
 		padding: 22px 0;
@@ -213,7 +222,7 @@
 		column-gap: 28px;
 		font-size: 15px;
 	}
-	.endpoint dt {
+	.meta dt {
 		font-family: 'Inter', sans-serif;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
@@ -222,8 +231,8 @@
 		color: var(--text-faint);
 		padding-top: 4px;
 	}
-	.endpoint dd { margin: 0; font-size: 15px; color: var(--text); line-height: 1.5; }
-	.endpoint dd code { font-size: 13.5px; }
+	.meta dd { margin: 0; font-size: 15px; color: var(--text); line-height: 1.5; }
+	.meta dd code { font-size: 13.5px; }
 
 	.method-tag {
 		display: inline-block;
@@ -239,7 +248,7 @@
 		vertical-align: 1px;
 	}
 
-	/* Figures */
+	/* Figures (used for SVG diagrams or images) */
 	figure { margin: 44px -8px; padding: 0; }
 	figure svg { display: block; width: 100%; height: auto; max-width: 100%; }
 	figcaption {
@@ -263,21 +272,21 @@
 		margin-right: 8px;
 	}
 
-	/* SVG text styles */
+	/* Text styles for SVG content */
 	.svg-text { font-family: 'Source Serif 4', Georgia, serif; fill: var(--text); font-size: 13px; }
 	.svg-text-italic { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; fill: var(--accent-deep); font-size: 12px; }
 	.svg-text-mono { font-family: 'JetBrains Mono', monospace; fill: var(--text); font-size: 11.5px; }
 	.svg-text-dim { font-family: 'Inter', sans-serif; fill: var(--text-faint); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; }
 
-	/* Narrative flow list */
-	.flow { margin: 40px 0; padding: 0; list-style: none; counter-reset: step; }
-	.flow > li {
+	/* Step list with hanging italic numerals */
+	.steps { margin: 40px 0; padding: 0; list-style: none; counter-reset: step; }
+	.steps > li {
 		counter-increment: step;
 		position: relative;
 		padding: 10px 0 10px 60px;
 		min-height: 30px;
 	}
-	.flow > li::before {
+	.steps > li::before {
 		content: counter(step, decimal-leading-zero);
 		position: absolute;
 		left: 0;
@@ -287,7 +296,7 @@
 		font-size: 15px;
 		color: var(--accent-deep);
 	}
-	.flow > li::after {
+	.steps > li::after {
 		content: "";
 		position: absolute;
 		left: 32px;
@@ -296,20 +305,20 @@
 		width: 1px;
 		background: var(--rule);
 	}
-	.flow > li:last-child::after { display: none; }
-	.flow .step-title { font-size: 16px; color: var(--text); font-weight: 500; line-height: 1.45; }
-	.flow .step-desc { font-size: 15px; color: var(--text-dim); margin-top: 4px; line-height: 1.6; }
-	.flow .step-desc code { font-size: 13.5px; }
+	.steps > li:last-child::after { display: none; }
+	.steps .step-title { font-size: 16px; color: var(--text); font-weight: 500; line-height: 1.45; }
+	.steps .step-desc { font-size: 15px; color: var(--text-dim); margin-top: 4px; line-height: 1.6; }
+	.steps .step-desc code { font-size: 13.5px; }
 
-	/* Transaction / nested sub-flow block */
-	.tx-block {
+	/* Nested sub-group with accent left rail */
+	.nest {
 		margin: 14px 0 14px 60px;
 		padding: 8px 0 8px 22px;
 		border-left: 2px solid var(--accent);
 		position: relative;
 	}
-	.tx-block::before {
-		content: "TRANSACTION";  /* override per usage if needed */
+	.nest[data-label]::before {
+		content: attr(data-label);
 		position: absolute;
 		top: -8px;
 		left: 18px;
@@ -321,15 +330,15 @@
 		letter-spacing: 0.16em;
 		color: var(--accent-deep);
 	}
-	.tx-block ol { list-style: none; padding: 8px 0 4px; margin: 0; counter-reset: substep; }
-	.tx-block ol li {
+	.nest ol { list-style: none; padding: 8px 0 4px; margin: 0; counter-reset: substep; }
+	.nest ol li {
 		counter-increment: substep;
 		padding: 8px 0 8px 40px;
 		position: relative;
 		font-size: 16px;
 		line-height: 1.55;
 	}
-	.tx-block ol li::before {
+	.nest ol li::before {
 		content: counter(substep, upper-alpha);
 		position: absolute;
 		left: 0;
@@ -339,17 +348,17 @@
 		color: var(--accent-deep);
 		font-size: 14px;
 	}
-	.tx-block ol li strong { font-weight: 600; }
-	.tx-block ol li .desc { display: block; color: var(--text-dim); font-size: 14.5px; margin-top: 2px; line-height: 1.6; }
-	.tx-block ol li .desc code { font-size: 13px; }
+	.nest ol li strong { font-weight: 600; }
+	.nest ol li .desc { display: block; color: var(--text-dim); font-size: 14.5px; margin-top: 2px; line-height: 1.6; }
+	.nest ol li .desc code { font-size: 13px; }
 
-	/* Insight: minimal left-accent callout */
-	.insight {
+	/* Callout — minimal left-accent */
+	.callout {
 		margin: 36px 0;
 		padding: 4px 0 4px 22px;
 		border-left: 2px solid var(--accent);
 	}
-	.insight-label {
+	.callout-label {
 		font-family: 'Source Serif 4', Georgia, serif;
 		font-style: italic;
 		font-size: 14px;
@@ -357,17 +366,17 @@
 		font-weight: 500;
 		margin-bottom: 6px;
 	}
-	.insight ul { margin: 0; padding: 0; list-style: none; }
-	.insight li {
+	.callout ul { margin: 0; padding: 0; list-style: none; }
+	.callout li {
 		font-size: 16.5px;
 		line-height: 1.65;
 		color: var(--text);
 		padding: 4px 0 4px 18px;
 		position: relative;
 	}
-	.insight li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
+	.callout li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
 
-	/* Aside / cautionary note */
+	/* Aside — softer, for cautions or side notes */
 	.aside {
 		margin: 36px 0;
 		padding: 4px 0 4px 22px;
@@ -385,6 +394,7 @@
 		margin-bottom: 6px;
 	}
 
+	/* Pull quote */
 	blockquote {
 		margin: 44px -10px;
 		padding: 6px 0 6px 32px;
@@ -408,6 +418,7 @@
 		font-style: normal;
 	}
 
+	/* Hairline table */
 	.t-wrap { overflow-x: auto; margin: 32px 0; }
 	table { width: 100%; border-collapse: collapse; font-size: 15.5px; background: transparent; }
 	th, td {
@@ -432,9 +443,9 @@
 	td:last-child, th:last-child { padding-right: 0; }
 	td code { font-size: 13.5px; }
 
-	/* Takeaways */
-	.takeaway { margin: 30px 0; padding: 0; }
-	.takeaway-tag {
+	/* Lessons / takeaway block — inline tagged title + dim body */
+	.lesson { margin: 30px 0; padding: 0; }
+	.lesson-tag {
 		display: inline-block;
 		font-family: 'Source Serif 4', Georgia, serif;
 		font-style: italic;
@@ -442,21 +453,21 @@
 		color: var(--accent-deep);
 		margin-right: 8px;
 	}
-	.takeaway-title {
+	.lesson-title {
 		display: inline;
 		font-family: 'Source Serif 4', Georgia, serif;
 		font-weight: 500;
 		font-size: 19px;
 		color: var(--text);
 	}
-	.takeaway-body {
+	.lesson-body {
 		font-size: 17px;
 		color: var(--text-dim);
 		line-height: 1.7;
 		margin-top: 8px;
 	}
 
-	/* Footnotes */
+	/* Footnotes block */
 	.footnotes {
 		margin-top: 96px;
 		padding-top: 32px;
@@ -476,7 +487,7 @@
 		padding: 0 1px;
 	}
 
-	/* File tree (two-column grid — handles CJK alignment) */
+	/* Path tree — two-column grid (handles CJK alignment robustly) */
 	.tree {
 		background: var(--bg-deep);
 		border: 1px solid var(--rule);
@@ -534,7 +545,7 @@
 	.replay:hover { border-color: var(--accent); color: var(--accent-deep); }
 	.replay svg { width: 12px; height: 12px; }
 
-	/* SVG animation primitives (JS controls dasharray) */
+	/* SVG animation primitives (JS at bottom controls dasharray) */
 	.parallel-line { opacity: 0; }
 	.parallel-line.ready { opacity: 1; }
 
@@ -559,11 +570,11 @@
 		.lede { font-size: 20px; }
 		h2 { font-size: 26px; }
 		body { font-size: 17.5px; }
-		.endpoint { grid-template-columns: 1fr; }
-		.endpoint dt { padding-top: 0; }
-		.flow > li { padding-left: 44px; }
-		.flow > li::after { left: 22px; }
-		.tx-block { margin-left: 44px; }
+		.meta { grid-template-columns: 1fr; }
+		.meta dt { padding-top: 0; }
+		.steps > li { padding-left: 44px; }
+		.steps > li::after { left: 22px; }
+		.nest { margin-left: 44px; }
 		blockquote { font-size: 20px; }
 		figure { margin: 36px -22px; }
 		figcaption { padding: 0 22px; }
@@ -573,148 +584,17 @@
 <body>
 <div class="container">
 
-	<!-- ════════════════════ MASTHEAD ════════════════════ -->
-	<p class="eyebrow">{{KICKER e.g. Endpoint Explainer · ProjectName}}</p>
-	<h1>{{TITLE — short, evocative; not a generic API name}}</h1>
-	<p class="lede">{{ONE-SENTENCE LEDE — italic serif, the headline insight}}</p>
-	<p class="byline"><strong>{{SUBJECT e.g. POST /v2.0/.../analyses}}</strong> &nbsp;·&nbsp; {{LOCATION e.g. Controller.kt:48}}</p>
-
-	<!-- ════════════════════ OPTIONAL: API ENDPOINT METADATA ════════════════════
-	     Use for HTTP endpoints. Remove if explaining a class/module/concept.
-	-->
-	<dl class="endpoint">
-		<dt>Method</dt>
-		<dd><span class="method-tag">{{POST/GET/...}}</span><code>{{/path/with/params}}</code></dd>
-		<dt>Auth</dt>
-		<dd><code>{{auth expression}}</code></dd>
-		<dt>Request</dt>
-		<dd><code>{{ReqType}}</code> — {{brief shape}}</dd>
-		<dt>Response</dt>
-		<dd><code>{{ResType}}</code> &nbsp;<span style="color:var(--text-faint)">{{status}}</span></dd>
-	</dl>
-
-	<!-- ════════════════════ SECTION 1 — OPENING ════════════════════
-	     The first paragraph gets a drop cap via .body-start.
-	     Start with the headline insight, then unfold context.
-	-->
-	<h2><span class="num">01</span>{{SECTION TITLE}}</h2>
-	<p class="body-start">{{Opening paragraph — drop cap on first letter.}}</p>
-	<p>{{Continuation. Use analogies sparingly but well.}}</p>
-
-	<!-- Example: Insight callout (use 2-4 times in the doc, at key turning points) -->
-	<div class="insight">
-		<div class="insight-label">Insight</div>
-		<ul>
-			<li>{{point 1 — surprising or non-obvious}}</li>
-			<li>{{point 2}}</li>
-			<li>{{point 3}}</li>
-		</ul>
-	</div>
-
-	<!-- ════════════════════ SECTION 2 — FLOW (with optional diagram) ════════════════════ -->
-	<h2><span class="num">02</span>{{e.g. 요청이 거치는 길}}</h2>
-	<p>{{Intro paragraph.}}</p>
-
-	<!-- Narrative flow list — keep this AND add a diagram below it if helpful -->
-	<ol class="flow">
-		<li>
-			<div class="step-title">{{Step title}}</div>
-			<div class="step-desc">{{One or two sentences.}}</div>
-		</li>
-		<li>
-			<div class="step-title">{{Step title}}</div>
-			<div class="step-desc">{{...}}</div>
-		</li>
-		<li>
-			<div class="step-title">tx { … } — 네 단계가 한 트랜잭션 안에서</div>
-			<div class="step-desc">{{lead-in to nested block below}}</div>
-		</li>
-	</ol>
-
-	<!-- Optional: nested transaction/sub-flow block, indented under a parent step -->
-	<div class="tx-block">
-		<ol>
-			<li><strong>{{substep}}</strong> — {{label}}<span class="desc">{{detail}}</span></li>
-			<li><strong>{{substep}}</strong> — {{label}}<span class="desc">{{detail}}</span></li>
-		</ol>
-	</div>
-
-	<!-- See references/svg-patterns.md for: sequence diagram, ERD, fan-out animation, decision tree -->
-	<!-- Example fig:
-	<figure>
-		<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg">...</svg>
-		<figcaption><span class="fig-num">Fig 1</span>{{caption}}</figcaption>
-	</figure>
-	-->
-
-	<!-- ════════════════════ SECTION 3 — KEY CODE EXCERPT ════════════════════ -->
-	<h2><span class="num">03</span>{{Heading — e.g. 핵심은 단 일곱 줄}}</h2>
-	<p>{{Set up the code excerpt.}}</p>
-
-<pre><code><span class="k">fun</span> <span class="fn">example</span>(): Type {
-    <span class="c">// comment</span>
-    <span class="k">val</span> result = ...
-    <span class="k">return</span> result
-}</code></pre>
-
-	<p>{{Walk through what it does and why it's interesting.}}</p>
-
-	<!-- ════════════════════ OPTIONAL: PULL QUOTE ════════════════════ -->
-	<blockquote>{{A line that captures the spirit. Keep it under 25 words.}}</blockquote>
-
-	<!-- ════════════════════ OPTIONAL: FILE TREE (use two-column grid) ════════════════════ -->
-	<!--
-	<div class="tree" role="img" aria-label="{{what tree represents}}">
-		<div class="path">gs://<span class="dir">bucket</span>/</div><div class="note"></div>
-		<div class="path"><span class="branch">└──</span> <span class="var">{userId}</span>/</div><div class="note">{{annotation}}</div>
-		<div class="path">    <span class="branch">└──</span> file.json</div><div class="note">{{annotation}}</div>
-	</div>
-	-->
-
-	<!-- ════════════════════ OPTIONAL: ASIDE / CAUTION ════════════════════ -->
-	<!--
-	<div class="aside">
-		<div class="aside-label">{{label}}</div>
-		<p style="margin:0">{{cautionary note about pitfalls}}</p>
-	</div>
-	-->
-
-	<!-- ════════════════════ TAKEAWAYS ════════════════════ -->
-	<hr class="hr-soft">
-	<h2><span class="num">N</span>이 코드에서 배워 갈 것</h2>
-
-	<div class="takeaway">
-		<span class="takeaway-tag">i.</span><span class="takeaway-title">{{Lesson title — one sentence.}}</span>
-		<div class="takeaway-body">{{Why this matters; what the senior would tell the junior.}}</div>
-	</div>
-
-	<div class="takeaway">
-		<span class="takeaway-tag">ii.</span><span class="takeaway-title">{{Lesson title.}}</span>
-		<div class="takeaway-body">{{...}}</div>
-	</div>
-
-	<!-- ════════════════════ ORNAMENT + CLOSING QUOTE ════════════════════ -->
-	<div class="ornament">· · ·</div>
-
-	<blockquote>{{Closing line — restate the headline insight in a memorable form.}}</blockquote>
-
-	<!-- ════════════════════ FOOTNOTES + SOURCES ════════════════════ -->
-	<div class="footnotes">
-		<ol>
-			<li id="fn1">{{footnote 1 — referenced as <sup><a href="#fn1">1</a></sup> in body}}</li>
-			<li id="fn2">{{footnote 2}}</li>
-		</ol>
-		<p style="margin-top:24px; font-size:13px; color:var(--text-faint)">Source · <code>{{path/to/file.ext:line}}</code></p>
-	</div>
+	<!-- The body is intentionally empty.
+	     Design your own structure based on what the target needs.
+	     Pull components from references/components.md as a catalog.
+	     Open this file's CSS above to know what classes are available. -->
 
 </div>
 
-<!-- ════════════════════ ANIMATION CONTROLLER ════════════════════
-	 Only needed if you added an animated SVG figure with <path class="parallel-line">.
-	 The IIFE auto-plays once when the figure enters the viewport, and exposes
-	 window.replayParallel() for the replay button.
-	 If your figure has both fan-out and join phases, update phase timings here.
--->
+<!-- Animation controller — only runs if you add an SVG figure with id="parallelFig".
+     The IIFE auto-plays once when the figure enters the viewport, and exposes
+     window.replayParallel() for an optional replay button.
+     If you don't add such a figure, this script is a no-op. -->
 <script>
 	(function () {
 		const fig = document.getElementById('parallelFig');

@@ -1,83 +1,77 @@
 ---
 name: claude-kit:explain
-description: explain me about the target — produces an engaging, narrative explainer rendered as an Anthropic-style HTML artifact opened in the browser
+description: explain me about the target — produces a single-pass-readable, Anthropic-style HTML artifact whose structure you design from scratch each time based on what the target actually needs
 argument-hint: [target]
 ---
 
-Explain the target — a file, endpoint, module, system, or concept — in plain language. Cover the technical architecture, how parts are connected, the technologies used, the *why* behind decisions, and the lessons one can take away (bugs encountered and how they were fixed, pitfalls and how to avoid them, the way good engineers think, best practices).
+Explain the target — a file, endpoint, module, system, concept — in plain language. Cover the technical architecture, how parts are connected, the technologies used, the *why* behind decisions, and the lessons one can take away (bugs encountered and how they were fixed, pitfalls and how to avoid them, the way good engineers think, best practices).
 
 It should be **engaging to read**, not boring documentation. Use analogies and anecdotes where they make abstract things stick. The goal: install an accurate mental model in the reader, not dump information.
 
-## Output format
+## The North Star
 
-Render the explanation as an **Anthropic-style HTML artifact** — a self-contained `.html` file that mimics Anthropic's long-form essay aesthetic (cream background, coral accent, serif headings, sans-serif body, generous whitespace). The file goes in the project's current working directory and is opened in the browser immediately so the user can read it.
+**A reader should understand the target after reading once.** This is the only metric that matters. Every decision — what to include, what to leave out, what order to put things in, where to add a diagram, whether to use a callout or a code block — is in service of this single goal.
 
-The HTML is the deliverable. Don't dump the whole explanation in chat first — go straight to writing the file.
+If a reader has to re-read a paragraph, you've already lost. If they get stuck at a name they don't recognize, lost. If they finish the page unsure what the headline insight was, lost. Build the explanation around the reader's likely mental trajectory, not around the structure of the code.
 
-## Workflow
+## What you do
 
-1. **Investigate the target.** Read the code, trace dependencies, run greps, understand the architecture. If the target is named ambiguously ("the auth flow", "the analyses endpoint"), use Grep/Read to pinpoint the actual files. Don't speculate — verify.
+1. **Investigate the target.** Read the code, trace dependencies, run greps, understand the architecture. If the target is named ambiguously ("the auth flow", "the analyses endpoint"), use Grep/Read to pinpoint actual files. Verify, don't speculate.
 
-2. **Identify the explanation skeleton.** Ask yourself:
-   - What's the *one big idea* a reader should leave with?
-   - What's the natural narrative order? (overview → flow → key decisions → lessons works well)
-   - Which aspects are *spatial / temporal / relational* and benefit from visualization? (architecture diagrams, sequence flows, parallelism, file trees)
-   - Where would an analogy or anecdote make a concept stick?
+2. **Construct the reader's path.** Before writing a single line, decide:
+   - What's the *one* headline insight the reader should leave with?
+   - What does the reader *already* know coming in? What are they likely *not* to know? Where will they get stuck?
+   - In what order should pieces arrive so each one explains the next? (This is rarely "the order the code is structured in.")
+   - Where does an analogy save 200 words? Where does a diagram save a paragraph? Where would either be a distraction?
 
-3. **Render to HTML.** Copy the template at `assets/template.html` to `{slug}-explained.html` in the current working directory. Fill in the content sections — keeping the CSS and JS exactly as-is. Read `references/components.md` for the available components and how to use them. Read `references/svg-patterns.md` if adding diagrams.
+3. **Design the page structure yourself.** Do NOT follow a fixed template. The structure you choose should serve *this specific target*. Some explanations are best as a single long essay. Others as a sequence of numbered acts. Others as a single chart with prose around it. There is no canonical section list — there is the structure this particular target needs.
 
-4. **Open in browser.** `open {slug}-explained.html` on macOS, or `xdg-open` on Linux. Tell the user the file path.
+4. **Render as an Anthropic-style HTML artifact.** A self-contained `.html` file in the project's current working directory, opened in the browser. The visual language is fixed (cream background, coral accent, serif headings, sans-serif body, generous whitespace); the *content structure* is yours to invent each time.
 
-## Content guidelines
+5. **Open in browser.** `open {slug}-explained.html` on macOS. Tell the user the file path. Don't re-explain the contents in chat — the artifact is the deliverable.
 
-- **Write in the user's language.** If they're conversing in Korean, write the HTML content in Korean.
-- **Voice**: engaging, slightly literary, with an essayist's flair. Aim for the tone of an Anthropic research post — clear, generous with context, never condescending.
-- **Open with the headline insight.** The lede should already give away the most important point, not tease it.
-- **Sections are short.** 2-4 paragraphs per section is plenty. Long blocks of prose lose readers.
-- **Show real code excerpts** where they illuminate. Use the `<pre><code>` blocks the template provides. Keep snippets to 10-20 lines.
-- **End with takeaways.** What would a staff engineer want a junior to learn from this code? List 3-5 concrete lessons.
-- **Footnotes** for tangents (related patterns, prior art, references). Use `<sup><a href="#fn1">1</a></sup>` and the `.footnotes` block at the bottom.
+## How to design the structure (no template — a way of thinking)
 
-## Visual element policy (this is the key upgrade)
+You're not filling in a form. You're building a path from where the reader is now to where you want them to be. Some heuristics:
 
-Visual elements **augment narrative, never replace it**. If you remove the diagram, the prose should still teach the concept. Common failure mode: replacing a written flow with a sequence diagram. Don't do that — keep the flow narrative AND add the diagram as a "here's the same thing in time-space" companion.
+- **Lead with the headline insight.** Don't tease. The lede should already give away the most important thing. Readers who only read the first paragraph should still walk away with the core idea.
+- **Name the surprise first.** If there's something non-obvious about this target — something that makes a reader say "huh, didn't expect that" — surface it early. Surprise creates the engagement that carries them through the rest.
+- **One thought per section.** Don't pack three insights into one section just because they're related. Let each insight breathe.
+- **Reader stuckness is a planning input.** As you draft, ask: "would a reader pause here and re-read?" That's a signal to add an analogy, a diagram, or to split the paragraph. Stuck-points are where structure happens.
+- **Cut, then cut more.** Every paragraph that doesn't move the reader closer to the headline insight is friction. If you find yourself writing background that's "nice to have" — remove it.
+- **End with what they take away.** Whether you call it "lessons," "takeaways," or something else, the closing should consolidate the mental model so the reader leaves with something portable.
 
-Add a diagram when:
-- The relationship is **spatial** (architecture, ERD, file tree)
-- The order is **temporal** (sequence of calls, transaction lifecycle)
-- There's **parallelism or branching** that's hard to express in linear text
-- A **path or hierarchy** matters (GCS paths, decision tree)
+These are heuristics, not rules. Some explanations open with a quote, some with a question, some with a code block. The right opening for *this* target is the one that pulls the reader in.
 
-Don't add a diagram for:
-- A list of takeaways (those are textual)
-- A code excerpt (the code is the diagram)
-- Anything you've already explained well in prose
+## What to use from the style assets
 
-Use at most **one animation** in the whole document — at the most dynamic point (typically parallelism or fan-out/join). One spotlight, not five.
+The Anthropic visual style is a **palette of materials**, not a recipe. You should know what's available and reach for what fits.
 
-## Technical patterns to follow
+- **`assets/shell.html`** — the empty starting file. Copy this to `<slug>-explained.html`, then write your content into the body. It contains the design tokens, fonts, and every component's CSS, but no prescribed content sections.
+- **`references/components.md`** — a catalog of what each visual component is *for*. Use this to answer "I want to convey X — what component fits?" Not to answer "what should come next in my doc?" (That's your call.)
+- **`references/svg-patterns.md`** — diagram patterns you can drop in when a relationship is hard to express in prose. Includes battle-tested traps to avoid in SVG animations.
 
-These are non-obvious traps from prior iterations. Following them up front saves multiple rewrite cycles:
+These are reference materials, not a workflow. Read them when you have a specific question, not before you've thought about the target.
 
-- **SVG line-draw**: always use `path.getTotalLength()` to set dasharray dynamically. Fixed values like `stroke-dasharray: 200` will clip curves. The template's JS handles this — just use the `.parallel-line` class.
-- **SVG markers (`marker-end`)**: cannot be hidden by `stroke-dashoffset`. Either omit them and let lines terminate at box edges, or fade in a separate polygon via opacity after the line completes.
-- **Replay buttons**: CSS animation set to `forwards` doesn't re-trigger. Use CSS transition + JS reset (transition='none' → force reflow → re-apply). The template includes this pattern in the IIFE at the bottom.
-- **CJK + ASCII alignment**: never align with whitespace padding — CJK characters have different widths than ASCII even in monospace. Use CSS grid `grid-template-columns: max-content 1fr` for file trees or two-column data. The template's `.tree` class does this.
-- **`prefers-reduced-motion`**: respect it. The template's JS already short-circuits animations when this media query matches.
+## What's preserved from the original explain skill
 
-## File naming and location
+The original mission stays: plain-language explanation of architecture, technologies, decisions, lessons, bugs, pitfalls, how good engineers think. Engaging, not textbook-flavored. Analogies and anecdotes where they help. Voice is essayist, not bureaucratic.
 
-Save the artifact as `<topic-slug>-explained.html` in the current working directory (where the user invoked the command). Use kebab-case for the slug — e.g., `post-analyses-explained.html`, `auth-flow-explained.html`, `payment-domain-explained.html`. After writing, open it with the OS default browser.
+What's *changed* is that the structure is no longer prescribed. The original skill let you write a free-form explanation; the previous HTML version started to constrain that with a fixed section template. This version returns the structural freedom while keeping the visual style.
+
+## File output
+
+Save as `<topic-slug>-explained.html` in the current working directory. Use kebab-case slugs derived from what the target actually is — not from how the user phrased their request. Open with the OS default browser after writing.
 
 ## Anti-patterns
 
-- **Don't** dump the explanation in chat before writing the file. Write the file first, then summarize what's in it.
-- **Don't** use card-heavy UI with colored backgrounds — Anthropic's actual style is typography-centric with hairlines and a single accent.
-- **Don't** add gradients, drop shadows, or rounded corners beyond 4-6px.
-- **Don't** replace narrative flow lists with sequence diagrams — keep both.
-- **Don't** use more than one animation per document.
-- **Don't** anchor to user-provided labels for the slug or title without rephrasing for clarity (e.g., if user says "explain X", consider what X actually is and title accordingly).
+- **Don't follow the visual order of a section template you've seen before.** Decide the structure for *this* target. The shell file deliberately has no content sections inside it.
+- **Don't open with a generic "Overview" section.** Open with the insight or the question that makes the rest worth reading.
+- **Don't add a section just because it exists in `components.md`.** Components are tools — use them only when they serve the reader's path.
+- **Don't dump the explanation in chat first.** Write the HTML, open it, then say "saved to {path}."
+- **Don't replicate the source code's organization.** The reader doesn't care which file something is in; they care about the *idea*. Structure by ideas, not files.
+- **Don't add more than one animation per document.** And only if there's parallelism or motion that's genuinely hard to convey statically.
 
 ## When you're done
 
-Tell the user: "Saved to `<path>` and opened in your browser." That's it. Don't re-explain the content in chat — they can read it.
+Tell the user: "Saved to `<path>` and opened in your browser." Don't recap the content in chat — let them read.
