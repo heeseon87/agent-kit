@@ -1,6 +1,6 @@
 ---
 name: claude-kit:explain
-description: Render an Anthropic-style HTML explainer of the target — structure designed per-target, scored against the pretty similarity gate
+description: Render an Anthropic-style HTML explainer of the target — structure designed per-target with cognitive-load-focused visuals
 argument-hint: [target]
 ---
 
@@ -22,13 +22,13 @@ If a reader has to re-read a paragraph, you've already lost. If they get stuck a
    - What's the *one* headline insight the reader should leave with?
    - What does the reader *already* know coming in? What are they likely *not* to know? Where will they get stuck?
    - In what order should pieces arrive so each one explains the next? (This is rarely "the order the code is structured in.")
-   - Where does an analogy save 200 words? Where does a diagram save a paragraph? Where would either be a distraction?
+   - Where does an analogy save 200 words? Where does a diagram save a paragraph? What mental stack would the reader otherwise have to carry? Where would either be a distraction?
 
 3. **Design the page structure yourself.** Do NOT follow a fixed template. The structure you choose should serve *this specific target*. Some explanations are best as a single long essay. Others as a sequence of numbered acts. Others as a single chart with prose around it. There is no canonical section list — there is the structure this particular target needs.
 
 4. **Render with `claude-kit:pretty`.** A self-contained `.html` file in the project's current working directory. Use the shared pretty assets (`../pretty/assets/shell.html`, `../pretty/references/components.md`, `../pretty/references/svg-patterns.md`) for the fixed Anthropic-style visual language; the *content structure* is yours to invent each time.
 
-5. **Measure, then open in browser.** Run `node skills/pretty/scripts/anthropic-similarity.mjs {slug}-explained.html`; if it misses `maxScore >= 95`, fix the artifact first. Then `open {slug}-explained.html` on macOS. Tell the user the file path. Don't re-explain the contents in chat — the artifact is the deliverable.
+5. **Verify, then open in browser.** Check that the saved HTML opens cleanly, has no console errors, and reads correctly in the first viewport. Then `open {slug}-explained.html` on macOS. Tell the user the file path. Don't re-explain the contents in chat — the artifact is the deliverable.
 
 ## How to design the structure (no template — a way of thinking)
 
@@ -42,6 +42,25 @@ You're not filling in a form. You're building a path from where the reader is no
 - **End with what they take away.** Whether you call it "lessons," "takeaways," or something else, the closing should consolidate the mental model so the reader leaves with something portable.
 
 These are heuristics, not rules. Some explanations open with a quote, some with a question, some with a code block. The right opening for *this* target is the one that pulls the reader in.
+
+## Visualization discipline — draw only the stuck points
+
+A visual earns its place only when it removes work from the reader's head. Before adding any figure, write down the burden it unloads: a branch they would have to simulate, a timeline they would have to remember, a before/after comparison, an input/output contract, a data transformation, or an ownership boundary.
+
+High-value explainer visuals:
+
+- **Mental-model map** — the few real parts and how they relate.
+- **Sequence or lifecycle** — when order matters more than component names.
+- **Branch / decision tree** — when conditions determine behavior.
+- **Input → output strip** — when examples clarify what the system promises.
+- **Before / after comparison** — when a refactor or design choice changes responsibility.
+- **Verification ladder** — when trust depends on stacked evidence.
+
+Keep it sparse. Three strong visuals beat seven mediocre ones. Five is the normal ceiling. If a document wants more, split the artifact or make a dedicated map page.
+
+Facts beat symmetry. Do not invent layers, nodes, arrows, files, calls, or domains because a diagram looks empty. Trace the code first; draw only relationships that actually exist. If the visual is about a general concept rather than this codebase, label it as conceptual.
+
+Place each visual where the reader would otherwise pause and re-read. The caption should carry the insight in one sentence.
 
 ## What to use from the style assets
 
@@ -63,9 +82,15 @@ What's *changed* is that the structure is no longer prescribed. The original ski
 
 Save as `<topic-slug>-explained.html` in the current working directory. Use kebab-case slugs derived from what the target actually is — not from how the user phrased their request. Open with the OS default browser after writing.
 
-## Similarity gate
+## Visual QA
 
-If the explanation is meant to carry the Anthropic visual language, run `node skills/pretty/scripts/anthropic-similarity.mjs <slug>-explained.html` after writing. Treat `maxScore >= 95` as the quality bar. If it misses, fix the artifact before opening it.
+If the explanation is meant to carry the Anthropic visual language, do a manual quality pass before opening it:
+
+- Warm paper, clay accent, hairline rules, editorial type, and generous whitespace are intact.
+- The page structure is content-shaped, not copied from a template.
+- Every diagram has a named comprehension job and no decorative filler.
+- Code-fact visuals are backed by actual files, calls, or data shapes you inspected.
+- Browser console is clean and the first screen establishes the mental model quickly.
 
 ## Anti-patterns
 
@@ -78,4 +103,4 @@ If the explanation is meant to carry the Anthropic visual language, run `node sk
 
 ## When you're done
 
-Tell the user: "Saved to `<path>`, similarity maxScore: S, and opened in your browser." Don't recap the content in chat — let them read.
+Tell the user: "Saved to `<path>` and opened in your browser." Don't recap the content in chat — let them read.

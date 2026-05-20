@@ -78,7 +78,7 @@ Inline italic tag + serif title + dim body. Use for portable lessons — what a 
 ### `<figure>` + `<svg>` + `<figcaption>`
 For diagrams. Caption is italic serif centered, prefixed by `<span class="fig-num">Fig N</span>`. The caption should make the *insight* explicit, not describe what's drawn — a reader who sees only the caption should still get the point.
 
-See `references/svg-patterns.md` for four patterns: ERD, sequence, fan-out/join (with animation), decision tree. Use a diagram when the relationship is spatial, temporal, or branching in a way that linear prose can't carry. Skip it when prose already makes the idea clear.
+See `references/svg-patterns.md` for four patterns: ERD, sequence, fan-out/join (with animation), decision tree. Use a diagram when the relationship is spatial, temporal, branching, contractual, transformational, or evidentiary in a way that linear prose would force the reader to calculate or hold a stack in memory. Skip it when prose already makes the idea clear.
 
 ### `<table>` (inside `.t-wrap`)
 Hairline rows, no zebra striping. Use for genuinely tabular data — 3+ columns of parallel facts. For 2 columns with 3 rows, prose or a `.callout` is usually clearer.
@@ -121,7 +121,7 @@ What you're free to invent:
 
 There is no canonical structure. There is the structure *this* target needs.
 
-The similarity metric rewards the visual signature, not this catalog's class names. Do not add a fake `.callout`, `.meta`, or `.lesson` just to satisfy a score. If an unlisted layout makes the content easier to understand while preserving the color, spacing, typography, and restraint, use the unlisted layout.
+Visual quality comes from meaning, not catalog coverage. Do not add a fake `.callout`, `.meta`, `.lesson`, or `<figure>` just to make the page look richer. If an unlisted layout makes the content easier to understand while preserving the color, spacing, typography, and restraint, use the unlisted layout.
 
 ---
 
@@ -131,6 +131,7 @@ The similarity metric rewards the visual signature, not this catalog's class nam
 - **Adding `.body-start` to multiple paragraphs.** Drop cap is once per document.
 - **Forcing a `<table>` for two-column data.** Prose or `.callout` is often clearer.
 - **Adding background colors to `.callout` or `.aside`.** They should stay on the page background — the left border is the entire accent.
+- **Diagram spam.** More visuals do not automatically mean more understanding. Add a figure only when you can name the mental burden it removes: branch simulation, timeline memory, input/output mapping, before/after comparison, data transformation, or verification stack.
 - **Forgetting the empty `<div class="note"></div>` cell in `.tree` rows.** The grid needs both cells per row to align.
 - **Using `<h1>` more than once.** It's the page title.
 - **Including literal quotation marks in `<blockquote>`.** The CSS draws the opening glyph.

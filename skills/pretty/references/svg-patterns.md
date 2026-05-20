@@ -2,6 +2,21 @@
 
 Read this when adding a `<figure>` with an SVG diagram. These are battle-tested patterns from prior iterations — copying them avoids re-discovering known traps.
 
+## Cognitive-load test
+
+A diagram earns its place only when it reduces reader work. Before drawing, name the stack it removes:
+
+- branch simulation: "if this input exists, which path runs?"
+- timeline memory: "what happens before/after this step?"
+- input/output contract: "what artifacts or side effects come out of each input shape?"
+- data transformation: "which fields/entities change shape?"
+- verification ladder: "which evidence is done, which remains pending?"
+- ownership/boundary map: "which component owns this responsibility now?"
+
+If the answer is "visual interest," skip the diagram. Three strong figures are usually enough; five is the ceiling for normal docs. Put the figure near the text it replaces, and make the caption state the insight.
+
+Default to inline SVG. Use Mermaid, Graphviz/DOT, ELK/Dagre, D3, or Observable Plot only when the data size or layout problem justifies the dependency; for final pretty artifacts, export or translate the result back into self-contained SVG styled with the shell tokens.
+
 ## Universal SVG principles
 
 1. **Single accent color.** Stroke in `var(--accent)` for emphasized elements, `var(--text)` for primary structure, `var(--text-dim)` for secondary. No fills (except `var(--bg)` to mask backgrounds behind crossing paths).
@@ -21,6 +36,9 @@ Diagrams earn their place only when the relationship is hard to express linearly
 | Sequence of calls across actors | Sequence diagram — lanes + lifelines + horizontal arrows |
 | Parallel work that fans out and joins | Fan-out/join — single source, N targets, optional merge node |
 | Decision tree / branching logic | Diamond decision node + labeled branches |
+| Input/output contract | Horizontal strip: input state cards → output artifacts / abort state |
+| Verification ladder | Vertical ladder or stepped timeline: evidence completed → pending follow-up |
+| Before/after responsibility split | Two-column comparison with one or two arrows, not a fake architecture map |
 | File/directory hierarchy | Skip SVG — use `.tree` grid (CJK-safe) |
 
 ## Pattern 1 — ERD / Architecture diagram

@@ -1,6 +1,6 @@
 ---
 name: claude-kit:implement
-description: Implement a spec while keeping a running implementation-notes.html file — a living decision log in the Anthropic visual style — that captures design decisions, deviations from spec, tradeoffs, and open questions for the reviewer to scan before merging
+description: Implement a spec while keeping a running implementation-notes.html decision log that captures reviewer-facing decisions, tradeoffs, open questions, and cognitive-load-reducing visuals
 argument-hint: [spec]
 ---
 
@@ -53,13 +53,29 @@ You're constructing a scan path for someone who hasn't been in your head. Some h
 
 These are heuristics. The right structure depends on the spec you're implementing — adapt them.
 
+## Visualization discipline — remove reviewer mental stack
+
+Use visuals only where they lower cognitive load. The test is simple: **what calculation, comparison, branch, timeline, or stack would the reviewer otherwise have to hold in their head?** If you cannot name that burden, don't add the visual.
+
+Good implementation-note visuals:
+
+- **Input → output contract strip** — when the reviewer needs to know which input shapes produce which artifacts or side effects.
+- **Branch classifier** — when several partial states collapse into a smaller set of execution paths.
+- **Verification ladder** — when evidence has layers: local repro, sample data, build result, production-like follow-up.
+- **Before / after state map** — when a migration, fallback, or refactor changes ownership, storage, or responsibility.
+- **Small sequence diagram** — only after verifying real function names and calls in code.
+
+Keep the budget tight. Three figures is usually plenty; five is a hard ceiling unless the document is explicitly a visual map. Put each figure next to the prose it replaces, not in a gallery. The caption must state the insight, not merely describe the drawing.
+
+Do not draw decorative architecture. Do not invent nodes, domains, steps, or relationships to make a diagram look balanced. If the code does not call it, the diagram does not show it.
+
 ## Style assets
 
 The visual language is provided as a palette of materials:
 
 - **`../pretty/assets/shell.html`** — the empty starting file. Copy this to `implementation-notes.html`, then write your content into the body container. Contains the design tokens, fonts, and every component's CSS, but no prescribed content sections.
 - **`../pretty/references/components.md`** — a catalog of what each visual component is *for*. Use this when you ask "I want to convey X — what fits?" — not to answer "what should come next?"
-- **`../pretty/references/svg-patterns.md`** — diagram patterns if a relationship is hard to express in prose (rare in implementation notes, but useful for architecture decisions or trade-off matrices).
+- **`../pretty/references/svg-patterns.md`** — line-art SVG patterns for relationships that would otherwise force the reviewer to hold branches, timelines, input/output contracts, verification state, or data mappings in their head.
 
 Read these when you have a specific question, not as a checklist.
 
@@ -76,9 +92,16 @@ The `claude-kit:explain` skill is essayist: engaging, literary, with analogies a
 
 The visual style comes from `pretty`; the *prose voice* is still terse implementation logging, not explain's essay voice.
 
-## Similarity gate
+## Quality pass
 
-After writing `implementation-notes.html`, run `node skills/pretty/scripts/anthropic-similarity.mjs implementation-notes.html`. Treat `maxScore >= 95` as the quality bar for the shared Anthropic-style presentation. If it misses, fix the HTML/CSS usage before finishing.
+After writing `implementation-notes.html`, verify the artifact instead of chasing a numeric style score:
+
+- The file exists and opens in the browser.
+- Browser console has no errors.
+- The first screen tells the reviewer the status, scope, and most consequential decision.
+- Every figure removes a real mental stack; no diagram is decorative filler.
+- Visual structure follows code facts. Function lanes, data maps, and ownership arrows are verified against the actual code before being drawn.
+- Korean/mixed-language notes keep `lang="ko"`, readable line breaks, and the pretty shell's CJK typography rules.
 
 ## Anti-patterns
 
@@ -92,6 +115,6 @@ After writing `implementation-notes.html`, run `node skills/pretty/scripts/anthr
 
 ## When you're done
 
-Tell the user: "Implementation done. Notes in `implementation-notes.html` — N open questions waiting for you. Similarity maxScore: S." The notes file *is* the deliverable, alongside the code. Don't recap entries in chat — they're in the file.
+Tell the user: "Implementation done. Notes in `implementation-notes.html` — N open questions waiting for you." The notes file *is* the deliverable, alongside the code. Don't recap entries in chat — they're in the file.
 
 If there are open questions, name how many. That's the one piece of state the user needs in chat to know if action is required from them.

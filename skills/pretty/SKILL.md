@@ -1,6 +1,6 @@
 ---
 name: claude-kit:pretty
-description: Create Anthropic-style HTML artifacts with the shared Claude Kit visual system, component catalog, SVG patterns, and a static similarity score against Anthropic-made pages
+description: Create Anthropic-style HTML artifacts with the shared Claude Kit visual system, component catalog, SVG patterns, and cognitive-load-focused visual QA
 argument-hint: [brief]
 ---
 
@@ -23,8 +23,8 @@ Use:
 - `skills/pretty/assets/shell.html` — blank HTML shell with tokens, typography, CSS components, and the optional SVG animation controller.
 - `skills/pretty/references/components.md` — component catalog. It tells you what each component is for; it is not a section template.
 - `skills/pretty/references/svg-patterns.md` — line-art SVG patterns for relationships that prose cannot carry.
-- `skills/pretty/scripts/anthropic-similarity.mjs` — static conformance metric. Run it on the artifact and iterate until `maxScore >= 95` when the brief is meant to be Anthropic-style.
-- `skills/pretty/references/anthropic-similarity.md` — methodology, source pages, scoring weights, and limitations for the metric.
+
+Use the shell and references as a shared visual system, not as a score target. There is no numeric style gate; quality comes from browser verification, source fidelity, restrained visual language, and whether the structure lowers reader effort.
 
 ## Workflow
 
@@ -32,11 +32,7 @@ Use:
 2. **Start from the shell.** Copy `skills/pretty/assets/shell.html` to the output path and write content inside `<div class="container">`.
 3. **Invent the structure for this artifact.** Do not fill a fixed template. Use any component or layout that improves comprehension. The catalog is a palette, not a checklist.
 4. **Keep the visual language fixed.** Warm parchment background, near-black ink, clay accent, serif editorial headings, JetBrains Mono for code, hairline rules, soft ring borders, restrained dark code blocks.
-5. **Measure similarity.** Run:
-   ```bash
-   node skills/pretty/scripts/anthropic-similarity.mjs <artifact.html>
-   ```
-   If `maxScore` is below 95, improve the artifact: usually the issue is missing reference colors, weak type hierarchy, too little whitespace, generic card styling, gradients, or weak Anthropic visual signature.
+5. **Run the visual QA pass.** Check the saved artifact for browser errors, first-screen comprehension, CJK typography when relevant, source-fact fidelity, restrained palette/type/spacing, and whether every visual element earns its place.
 6. **Open the file.** On macOS: `open <artifact.html>`. Report only the path and verification state. Do not dump the artifact's contents in chat.
 
 ## Visual language
@@ -60,6 +56,14 @@ Use the reference swatches in the shell; do not freestyle colors.
 - Code is always JetBrains Mono or a mono fallback.
 - Korean and mixed Korean/English are first-class. The shell uses Hahmlet because it keeps CJK prose visually close to Anthropic's serif posture without breaking Korean rendering.
 
+### Cognitive-load visuals
+
+Visuals are not decoration. Add a diagram only when it saves the reader from doing mental bookkeeping: simulating branches, remembering a timeline, comparing before/after states, mapping input to output, following a data transformation, or stacking verification evidence.
+
+Before adding `<figure>`, name the burden it removes. If the answer is vague — "it looks nicer" or "the page needs visual interest" — skip it. Three strong figures usually beat five. Five is the normal ceiling unless the artifact is explicitly a visual map.
+
+Inline SVG is the default. Use libraries only when the problem genuinely needs them: Mermaid for quick draft flowcharts, Graphviz/DOT or ELK/Dagre for code-fact graphs with many nodes, Observable Plot for real quantitative charts. For final pretty artifacts, prefer self-contained inline SVG styled with the shell tokens.
+
 ### Components
 
 These are named conveniences in the shell, not the only legal moves. If comprehension wants a comparison grid, a single-column essay, a dense table, a split-panel walkthrough, or a custom semantic block, use it. Keep the color, spacing, typography, hairlines, and restraint in the Anthropic family.
@@ -72,30 +76,29 @@ These are named conveniences in the shell, not the only legal moves. If comprehe
 - Use `<figure>` + SVG for spatial, temporal, or branching relationships. Keep it line-art: thin strokes, no gradients, no shadows.
 - Use language-classed `<pre><code>` for short code excerpts. Add the language class; the shell handles rendering and labels. Do not paste huge code blocks as a substitute for explanation.
 
-## Similarity metric
+## Quality bar
 
-The metric is intentionally static and inspectable. It does not pretend to be a human taste judge. It scores whether the artifact uses the same design profile as Anthropic-made pages:
+The page should feel Anthropic-adjacent without copying Anthropic: warm paper, quiet editorial hierarchy, sparse line-art, hairline rules, clay used sparingly, and no generic SaaS sludge.
 
-- palette overlap and warm-neutral discipline
-- typography roles, sizes, weights, and line-height
-- layout rhythm, container width, section spacing, responsive behavior
-- visual signature: hairline rules, clay/quiet rails, structural variety, soft surfaces, tracked uppercase kickers
-- restraint: few gradients, no glassmorphism, no neon/rainbow palette, no generic SaaS card soup
+The real test is comprehension. A reader should need less working memory after the page exists:
 
-`maxScore` is the best score across built-in Anthropic reference profiles. For this skill, treat `95` as the minimum bar for an artifact that claims the Anthropic look.
+- the headline insight is visible in the first viewport
+- named facts are grouped instead of buried in prose
+- branches, timelines, contracts, and verification stacks are visualized only when prose would make the reader calculate
+- visuals are source-grounded and captioned with the actual insight
+- the browser renders cleanly with no console errors
 
 ## Anti-patterns
 
 - Do not clone Anthropic copy, product screens, or proprietary layouts. Borrow the design language, not copyrighted content.
 - Do not add fake metrics, testimonial cards, decorative icons, or generic feature grids.
-- Do not chase the score by padding fake components. The metric checks visual signature, not whether you used specific class names.
+- Do not add diagrams just because the page feels empty. Visualize only the parts the reader would otherwise have to calculate or stack mentally.
 - Do not use gradients, glass, neon, rainbow accents, or cool blue-gray palettes.
 - Do not use a fixed section order just because a previous pretty page did.
 - Do not put long explanations in chat. The HTML artifact is the deliverable.
-- Do not claim `>=95` unless you actually ran the metric on the saved file.
 
 ## When you're done
 
-Tell the user: `Saved to <path>. Similarity maxScore: <score>. Opened in your browser.`
+Tell the user: `Saved to <path>. Opened in your browser. Verified: <checks>.`
 
-If the score is below 95, say why and what would need to change. Do not hand-wave it as done.
+If visual QA is limited, say exactly what was and was not verified. Do not hand-wave it as done.
