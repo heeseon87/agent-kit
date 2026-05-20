@@ -21,7 +21,7 @@ A first letter set in large serif accent. Use it **once per document**, on the p
 A line that deserves to ring. Big italic serif with a hanging quote glyph. The quote mark is drawn by CSS — don't include literal `"` in your text. Use sparingly: 0–3 per document.
 
 ### `<pre><code>` — code excerpt
-Dark monospace block for short excerpts. Add the library-compatible language class (`class="language-<id>"`) when you know it; otherwise the shell infers from the first line and code shape. Keep excerpts short; if the snippet is long, your prose is doing too little.
+Dark monospace block for short excerpts. Add the library-compatible language class (`class="language-<id>"`) so the shell can render and label it. Without a class the block stays plain monospace. Keep excerpts short; if the snippet is long, your prose is doing too little.
 
 ### `<code>` — inline code
 Accent-colored monospace inline. Use for identifiers, file paths, short literal values.

@@ -159,7 +159,7 @@ if (!QUIET) {
   log(`[claude-kit] ${changed === 0 ? 'Already up to date.' : `${changed} item(s) updated.`}`);
   log('');
   log('  Statusline: Tokyo Night powerline theme');
-  log('  Skills:     /interview, /edit, /explain, /doctor');
+  log('  Skills:     /setup, /doctor, /interview, /edit, /explain, /implement, /pretty');
   log('  Auto-sync:  SessionStart hook keeps HUD synced with the installed plugin version');
   log('');
   log('  Restart Claude Code to apply changes.');

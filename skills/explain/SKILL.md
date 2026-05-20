@@ -1,6 +1,6 @@
 ---
 name: claude-kit:explain
-description: explain me about the target — produces a single-pass-readable, Anthropic-style HTML artifact whose structure you design from scratch each time based on what the target actually needs
+description: Render an Anthropic-style HTML explainer of the target — structure designed per-target, scored against the pretty similarity gate
 argument-hint: [target]
 ---
 

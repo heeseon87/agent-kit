@@ -758,66 +758,32 @@ Prism.languages.python={comment:{pattern:/(^|[^\\])#.*/,lookbehind:!0,greedy:!0}
 !function(e){e.languages.diff={coord:[/^(?:\*{3}|-{3}|\+{3}).*$/m,/^@@.*@@$/m,/^\d.*$/m]};var n={"deleted-sign":"-","deleted-arrow":"<","inserted-sign":"+","inserted-arrow":">",unchanged:" ",diff:"!"};Object.keys(n).forEach((function(a){var i=n[a],r=[];/^\w+$/.test(a)||r.push(/\w+/.exec(a)[0]),"diff"===a&&r.push("bold"),e.languages.diff[a]={pattern:RegExp("^(?:["+i+"].*(?:\r\n?|\n|(?![\\s\\S])))+","m"),alias:r,inside:{line:{pattern:/(.)(?=[\s\S]).*(?:\r\n?|\n)?/,lookbehind:!0},prefix:{pattern:/[\s\S]/,alias:/\w+/.exec(a)[0]}}}})),Object.defineProperty(e.languages.diff,"PREFIXES",{value:n})}(Prism);
 </script>
 
-<!-- Pretty integration: normalize language classes, add labels, and let PrismJS do the actual highlighting. -->
+<!-- Pretty integration: fill in standard PrismJS aliases that the minified bundles drop, then highlight + label. -->
 <script>
 	(function () {
 		try {
+			const Prism = window.Prism;
+			if (!Prism) return;
+
 			const aliases = {
-				js: 'javascript', mjs: 'javascript', cjs: 'javascript', jsx: 'javascript',
-				ts: 'typescript', tsx: 'typescript',
-				kt: 'kotlin', kts: 'kotlin',
-				yml: 'yaml', sh: 'bash', shell: 'bash', zsh: 'bash', mysql: 'sql', mariadb: 'sql',
-				py: 'python', rb: 'ruby', rs: 'rust', md: 'markdown', html: 'markup', xml: 'markup', svg: 'markup'
+				html: 'markup', xml: 'markup', svg: 'markup', mathml: 'markup',
+				sh: 'bash', shell: 'bash', zsh: 'bash',
+				py: 'python',
+				mysql: 'sql', mariadb: 'sql'
 			};
-
-			function normalize(lang) {
-				if (!lang) return '';
-				const clean = lang.toLowerCase().replace(/^language-/, '').replace(/^lang-/, '');
-				return aliases[clean] || clean;
-			}
-
-			function languageFromClass(code) {
-				for (const cls of code.classList) {
-					const lang = normalize(cls);
-					if (lang && cls !== 'language-none' && cls !== 'language-plaintext') return lang;
+			for (const [from, to] of Object.entries(aliases)) {
+				if (!Prism.languages[from] && Prism.languages[to]) {
+					Prism.languages[from] = Prism.languages[to];
 				}
-				return '';
-			}
-
-			function inferLanguage(code, text) {
-				const classLang = languageFromClass(code);
-				if (classLang) return classLang;
-				const dataLang = normalize(code.dataset.lang || code.parentElement?.dataset.lang || '');
-				if (dataLang) return dataLang;
-				const firstLine = text.split(/\r?\n/, 1)[0] || '';
-				const header = firstLine.toLowerCase();
-				if (/\.(kt|kts)\b/.test(header)) return 'kotlin';
-				if (/\.(mjs|cjs|js|jsx)\b/.test(header)) return 'javascript';
-				if (/\.(ts|tsx)\b/.test(header)) return 'typescript';
-				if (/\.(sql)\b/.test(header)) return 'sql';
-				if (/\.(ya?ml)\b/.test(header)) return 'yaml';
-				if (/\.(json)\b/.test(header)) return 'json';
-				if (/\.(sh|bash|zsh)\b/.test(header)) return 'bash';
-				if (/\.(py)\b/.test(header)) return 'python';
-				const trimmed = text.trim();
-				if (/^(with|select|update|insert|delete|create|alter)\b/im.test(trimmed)) return 'sql';
-				if (/^\s*[\[{]/.test(trimmed) && /[\]}]\s*$/.test(trimmed)) return 'json';
-				if (/\b(fun|val|var|data class|suspend|override)\b/.test(text)) return 'kotlin';
-				if (/\b(const|let|function|import|export|await|async)\b/.test(text)) return 'javascript';
-				if (/^\s*[\w.-]+\s*:/m.test(text)) return 'yaml';
-				return 'plaintext';
 			}
 
 			document.querySelectorAll('pre code').forEach((code) => {
-				const lang = inferLanguage(code, code.textContent || '');
-				const prismLang = window.Prism?.languages?.[lang] ? lang : 'plaintext';
-				const langClass = 'language-' + prismLang;
-				code.classList.remove(...Array.from(code.classList).filter((cls) => /^lang(uage)?-/.test(cls)));
-				code.classList.add(langClass);
-				code.parentElement.classList.add(langClass);
-				if (prismLang !== 'plaintext') code.parentElement.dataset.lang = prismLang;
-				if (window.Prism) window.Prism.highlightElement(code);
+				const lang = Prism.util.getLanguage(code);
+				if (lang && lang !== 'none' && Prism.languages[lang]) {
+					code.parentElement.dataset.lang = lang;
+				}
 			});
+			Prism.highlightAll();
 		} catch (error) {
 			document.documentElement.dataset.prettyHighlightError = error && error.message ? error.message : 'PrismJS highlighting failed';
 		}
