@@ -1,10 +1,10 @@
 ---
 name: claude-kit:implement
-description: Implement a spec while keeping a running implementation-notes.html decision log that captures reviewer-facing decisions, tradeoffs, open questions, and cognitive-load-reducing visuals
+description: Implement a spec while keeping a running context-slugged HTML decision log that captures reviewer-facing decisions, tradeoffs, open questions, and cognitive-load-reducing visuals
 argument-hint: [spec]
 ---
 
-Implement $1. As you work, maintain a running `implementation-notes.html` file in the current working directory that captures what the reviewer needs to know to evaluate the result — design decisions, deviations from the spec, tradeoffs, and open questions.
+Implement $1. As you work, maintain a running context-specific implementation notes file in the current working directory — `<topic-slug>-implementation-notes.html` — that captures what the reviewer needs to know to evaluate the result: design decisions, deviations from the spec, tradeoffs, and open questions.
 
 The notes are a **decision log, not a polished essay**. Terser is fine. Honest is better than thorough.
 
@@ -37,7 +37,19 @@ The file is updated *as you work*, not at the end. The user may open it mid-impl
 
 ## Output: Anthropic-style HTML artifact
 
-A self-contained `implementation-notes.html` file using the shared `claude-kit:pretty` visual language — warm parchment background, clay accent, Hahmlet/serif editorial typography, JetBrains Mono for code, generous whitespace. The visual identity is centralized in `pretty` so explain, implement, and standalone design artifacts do not drift.
+A self-contained `<topic-slug>-implementation-notes.html` file using the shared `claude-kit:pretty` visual language — warm parchment background, clay accent, Hahmlet/serif editorial typography, JetBrains Mono for code, generous whitespace. The visual identity is centralized in `pretty` so explain, implement, and standalone design artifacts do not drift.
+
+## File output
+
+Save as `<topic-slug>-implementation-notes.html` in the current working directory. Use kebab-case slugs derived from what the implementation is actually about — the feature, bug, module, endpoint, migration, ticket, or touched subsystem — not from generic words in the user's phrasing like "implement", "fix", or "task".
+
+Examples:
+
+- `rate-limit-hud-implementation-notes.html`
+- `auth-refresh-token-implementation-notes.html`
+- `user-analysis-migration-implementation-notes.html`
+
+If the work target is ambiguous at the start, infer the slug after the first investigation pass from the real files/spec being changed, then initialize the notes file. Do not fall back to the generic `implementation-notes.html` name for new work. If an old `implementation-notes.html` already exists, treat it as legacy input: read it if relevant, then migrate or continue in the new context-slugged file.
 
 What's *not* shared with explain is the *content structure*. There's no fixed template for what comes first or what the section headings should be. Design the structure for this specific implementation: how many decisions there are, how clustered they are, whether they group naturally by domain, by file, by phase. **You decide.**
 
@@ -73,7 +85,7 @@ Do not draw decorative architecture. Do not invent nodes, domains, steps, or rel
 
 The visual language is provided as a palette of materials:
 
-- **`../pretty/assets/shell.html`** — the empty starting file. Copy this to `implementation-notes.html`, then write your content into the body container. Contains the design tokens, fonts, and every component's CSS, but no prescribed content sections.
+- **`../pretty/assets/shell.html`** — the empty starting file. Copy this to `<topic-slug>-implementation-notes.html`, then write your content into the body container. Contains the design tokens, fonts, and every component's CSS, but no prescribed content sections.
 - **`../pretty/references/components.md`** — a catalog of what each visual component is *for*. Use this when you ask "I want to convey X — what fits?" — not to answer "what should come next?"
 - **`../pretty/references/svg-patterns.md`** — line-art SVG patterns for relationships that would otherwise force the reviewer to hold branches, timelines, input/output contracts, verification state, or data mappings in their head.
 
@@ -94,7 +106,7 @@ The visual style comes from `pretty`; the *prose voice* is still terse implement
 
 ## Quality pass
 
-After writing `implementation-notes.html`, verify the artifact instead of chasing a numeric style score:
+After writing `<topic-slug>-implementation-notes.html`, verify the artifact instead of chasing a numeric style score:
 
 - The file exists and opens in the browser.
 - Browser console has no errors.
@@ -115,6 +127,6 @@ After writing `implementation-notes.html`, verify the artifact instead of chasin
 
 ## When you're done
 
-Tell the user: "Implementation done. Notes in `implementation-notes.html` — N open questions waiting for you." The notes file *is* the deliverable, alongside the code. Don't recap entries in chat — they're in the file.
+Tell the user: "Implementation done. Notes in `<topic-slug>-implementation-notes.html` — N open questions waiting for you." The notes file *is* the deliverable, alongside the code. Don't recap entries in chat — they're in the file.
 
 If there are open questions, name how many. That's the one piece of state the user needs in chat to know if action is required from them.
