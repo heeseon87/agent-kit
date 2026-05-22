@@ -21,8 +21,8 @@ node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.jo
 
 ## What it does (one-time)
 
-- Writes `~/.claude/hud/statusline.mjs` (and `statusline.cmd` on Windows) from the latest plugin source
-- Configures `settings.json` `statusLine.command` to point at the stable `~/.claude/hud/` path
+- Writes `~/.claude/hud/statusline.mjs` from the latest plugin source
+- Configures `settings.json` `statusLine.command` to point at the stable `~/.claude/hud/` path; on Windows this is a direct `node statusline.mjs` command, not a `.cmd` wrapper
 - Registers a `SessionStart` hook in `settings.json` that re-runs this script in `--quiet` mode every session, keeping HUD files in sync with the installed plugin version automatically — no manual setup needed after `/plugin update`
 - Backs up any pre-existing files to `~/.claude/hud/backup/`
 

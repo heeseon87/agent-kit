@@ -8,7 +8,7 @@
  *
  * What it does:
  *   1. Sync ~/.claude/hud/statusline.mjs from the latest plugin source (marketplaces > cache)
- *   2. Generate ~/.claude/hud/statusline.cmd on Windows (with detected node path)
+ *   2. On Windows, point settings.json directly at node + statusline.mjs (no .cmd wrapper)
  *   3. Write settings.json statusLine + SessionStart hook (preserving other hooks)
  *
  * Architecture: settings.json points at stable ~/.claude/hud/ paths (not at
@@ -99,20 +99,14 @@ if (existsSync(srcMjs) && !filesEqual(srcMjs, destMjs)) {
   log(`[claude-kit] Updated ${destMjs}`);
 }
 
-// 3. Windows .cmd wrapper (regenerated when content differs — node path may have moved)
-let statusLineEntryPath = destMjs;
+// 3. Windows avoids a .cmd wrapper here. The old wrapper added an extra cmd.exe
+// process in Claude Code's statusline path, and hard-killed parents could leave
+// those cmd.exe processes orphaned. Direct node invocation is still a command
+// string, but it removes the batch-file layer and stale wrapper file as a cause.
+let statusLineCommand = `"${destMjs}"`;
 if (process.platform === 'win32') {
-  const cmdPath = join(HUD_DIR, 'statusline.cmd');
   const nodeRef = resolveWindowsNodeRef();
-  const cmdContent = `@echo off\r\n${nodeRef} "%~dp0statusline.mjs" %*\r\n`;
-  const current = existsSync(cmdPath) ? readFileSync(cmdPath, 'utf-8') : null;
-  if (current !== cmdContent) {
-    backup(cmdPath);
-    writeFileSync(cmdPath, cmdContent);
-    changed++;
-    log(`[claude-kit] Updated ${cmdPath} (node ref: ${nodeRef})`);
-  }
-  statusLineEntryPath = cmdPath;
+  statusLineCommand = `${nodeRef} "${destMjs}"`;
 }
 
 // 4. settings.json: statusLine + SessionStart hook (only writes if shape differs)
@@ -124,7 +118,7 @@ try {
 
   const desiredStatusLine = {
     type: 'command',
-    command: `"${statusLineEntryPath}"`,
+    command: statusLineCommand,
     refreshInterval: 1
   };
   const desiredHookEntry = {

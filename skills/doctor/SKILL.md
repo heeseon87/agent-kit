@@ -8,7 +8,7 @@ description: Diagnose and fix claude-kit statusline issues (broken paths, permis
 Diagnose and automatically fix common statusline issues. **Adapt every check to the user's OS** (macOS/Linux vs Windows) — the expected statusLine entry differs:
 
 - **macOS/Linux**: `~/.claude/hud/statusline.mjs` is invoked directly via shebang.
-- **Windows**: `~/.claude/hud/statusline.cmd` is invoked, which then calls `node` with the `.mjs`.
+- **Windows**: `node` is invoked directly with `~/.claude/hud/statusline.mjs`; no `.cmd` wrapper should sit in the statusline hot path.
 
 ## Steps
 
@@ -28,10 +28,10 @@ Fail: Tell user to install Node.js or configure their version manager. On Window
 
 ### 2. Check HUD files exist
 
-The `.mjs` is required on every platform; the `.cmd` is required on Windows only.
+The `.mjs` is required on every platform. A legacy `.cmd` wrapper may still exist on Windows, but settings should not point at it.
 
 - macOS/Linux: `test -f ~/.claude/hud/statusline.mjs && echo OK || echo MISSING`
-- Windows: `test -f "$USERPROFILE/.claude/hud/statusline.mjs" && test -f "$USERPROFILE/.claude/hud/statusline.cmd"` (or use `cmd /c "if exist ... echo OK"`)
+- Windows: `test -f "$USERPROFILE/.claude/hud/statusline.mjs"` (or use `cmd /c "if exist ... echo OK"`)
 
 Fail: Run setup (Step 6).
 
@@ -47,15 +47,15 @@ Fix on Unix: `chmod 755 ~/.claude/hud/statusline.mjs`
 Read `~/.claude/settings.json` and inspect `statusLine.command`. The expected value is one of:
 
 - macOS/Linux: `"<homedir>/.claude/hud/statusline.mjs"` (with surrounding quotes inside the JSON string)
-- Windows: `"<homedir>/.claude/hud/statusline.cmd"` (with surrounding quotes inside the JSON string)
+- Windows: `"%ProgramFiles%\\nodejs\\node.exe" "<homedir>\\.claude\\hud\\statusline.mjs"` when standard Node is installed, or `"<current node.exe>" "<homedir>\\.claude\\hud\\statusline.mjs"` for version managers
 
 Common problems:
 
 | Problem | Pattern | Fix |
 |---------|---------|-----|
-| Hardcoded node path | `"/path/to/node" "/path/to/statusline.mjs"` | Run setup |
+| Hardcoded stale node path | `"C:\\old\\node.exe" "...statusline.mjs"` and node path is missing | Run setup |
+| Legacy Windows cmd wrapper | Path ends with `statusline.cmd` on Windows | Run setup (the new setup removes the `.cmd` wrapper from the hot path) |
 | Missing statusLine | No `statusLine` key | Run setup |
-| Wrong extension on Windows | Path ends with `statusline.mjs` on Windows | Run setup (the new setup writes `.cmd` on Windows) |
 | Wrong extension on Unix | Path ends with `.cmd` on macOS/Linux | Run setup |
 | Path doesn't exist | File pointed at by command is missing | Run setup |
 
@@ -78,12 +78,13 @@ Spawn the configured command exactly the way Claude Code does (with stdin) and i
   ```
 - Windows:
   ```bash
-  echo {"model":{"display_name":"Opus"},"version":"2.0.0","workspace":{"current_dir":"C:\\tmp"},"session_id":"x"} | cmd //c "%USERPROFILE%\.claude\hud\statusline.cmd"
+  echo {"model":{"display_name":"Opus"},"version":"2.0.0","workspace":{"current_dir":"C:\\tmp"},"session_id":"x"} | "%ProgramFiles%\nodejs\node.exe" "%USERPROFILE%\.claude\hud\statusline.mjs"
   ```
 
 Pass: produces text output containing ANSI escape codes (e.g. `\u001b[`).
 Fail diagnostics:
-- **Windows, "node not found" / "is not recognized"** → The `.cmd` wrapper points at a stale node path (likely after a node uninstall or version manager change). Re-run setup (Step 6).
+- **Windows, node path missing / stale** → Re-run setup (Step 6). It rewrites the direct `node statusline.mjs` command with the current node reference.
+- **Windows, settings still points at `statusline.cmd`** → Re-run setup (Step 6). The legacy wrapper is removed from the statusline hot path to avoid orphaned `cmd.exe` processes.
 - **Unix, "permission denied"** → Step 3 fix.
 - **No output, exit 0** → Possibly a runtime crash silenced by Claude Code; run with stdin sample above to see the real error.
 
@@ -95,7 +96,7 @@ Run `/claude-kit:setup` (or invoke the script directly — picks the highest cac
 node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.join(h,'.claude/plugins/cache'),r=[];function w(d){try{for(var e of fs.readdirSync(d,{withFileTypes:true})){var f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name=='plugin-setup.mjs'&&f.includes('claude-kit')){var v=p.basename(p.dirname(p.dirname(f)));if(/^[0-9]+\.[0-9]+\.[0-9]+$/.test(v))r.push([v,f])}}}catch(_){}}w(c);if(!r.length){console.error('plugin-setup.mjs not found in cache');process.exit(1)}r.sort(function(a,b){var x=a[0].split('.').map(Number),y=b[0].split('.').map(Number);for(var i=0;i<3;i++)if(x[i]!==y[i])return y[i]-x[i];return 0});require('child_process').execFileSync(process.execPath,[r[0][1]],{stdio:'inherit'})"
 ```
 
-The setup is idempotent — it backs up existing files, regenerates `statusline.cmd` (Windows) with the current node path, and rewrites the `statusLine` block in settings.json.
+The setup is idempotent — it backs up existing files, refreshes `statusline.mjs`, and rewrites the `statusLine` block in settings.json. On Windows it writes a direct `node statusline.mjs` command rather than a `.cmd` wrapper, because the wrapper can leave orphaned `cmd.exe` processes after hard-killed Claude Code sessions.
 
 ## Output format
 
@@ -103,9 +104,8 @@ The setup is idempotent — it backs up existing files, regenerates `statusline.
 claude-kit doctor (windows)
   [pass] node available (v24.15.0)
   [pass] statusline.mjs exists
-  [pass] statusline.cmd exists
-  [pass] settings.json points at statusline.cmd
-  [FAIL] cmd wrapper references missing node path → re-ran setup
+  [pass] settings.json uses direct node + statusline.mjs
+  [FAIL] legacy statusline.cmd still configured → re-ran setup
   [pass] statusline runs successfully
 
 All checks passed. Restart Claude Code to apply changes.

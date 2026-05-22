@@ -15,24 +15,44 @@ import { basename, join } from 'node:path';
 // Stdin Parsing
 // ============================================================================
 
+const STDIN_TIMEOUT_MS = 1000;
+
 async function readStdin() {
   if (process.stdin.isTTY) return null;
 
-  const chunks = [];
-  process.stdin.setEncoding('utf8');
+  return new Promise((resolve) => {
+    const chunks = [];
+    let done = false;
 
-  for await (const chunk of process.stdin) {
-    chunks.push(chunk);
-  }
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
 
-  const raw = chunks.join('');
-  if (!raw.trim()) return null;
+      const raw = chunks.join('');
+      if (!raw.trim()) {
+        resolve(null);
+        return;
+      }
 
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+      try {
+        resolve(JSON.parse(raw));
+      } catch {
+        resolve(null);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      try { process.stdin.destroy(); } catch {}
+      finish();
+    }, STDIN_TIMEOUT_MS);
+
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', (chunk) => { chunks.push(chunk); });
+    process.stdin.once('end', finish);
+    process.stdin.once('error', finish);
+    process.stdin.resume();
+  });
 }
 
 // ============================================================================
@@ -166,6 +186,40 @@ function getContextPercent(stdin) {
 const VERSION_CACHE_PATH = join(homedir(), '.claude', '.claude-code-latest-version.json');
 const VERSION_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1시간
 
+function refreshLatestVersionInBackground() {
+  const script = `
+const https = require('node:https');
+const { mkdirSync, writeFileSync } = require('node:fs');
+const { dirname } = require('node:path');
+const cachePath = ${JSON.stringify(VERSION_CACHE_PATH)};
+const req = https.get('https://registry.npmjs.org/@anthropic-ai%2fclaude-code/latest', { timeout: 3000 }, (res) => {
+  let body = '';
+  res.setEncoding('utf8');
+  res.on('data', chunk => { body += chunk; });
+  res.on('end', () => {
+    try {
+      if (res.statusCode !== 200) process.exit(0);
+      const version = JSON.parse(body).version;
+      if (!version) process.exit(0);
+      mkdirSync(dirname(cachePath), { recursive: true });
+      writeFileSync(cachePath, JSON.stringify({ version, timestamp: Date.now() }));
+    } catch {}
+  });
+});
+req.on('timeout', () => req.destroy());
+req.on('error', () => {});
+`;
+
+  try {
+    const child = spawn(process.execPath, ['-e', script], {
+      stdio: 'ignore',
+      detached: true,
+      windowsHide: true,
+    });
+    child.unref();
+  } catch {}
+}
+
 function getLatestVersion() {
   let cachedVersion = null;
 
@@ -180,20 +234,7 @@ function getLatestVersion() {
   } catch {}
 
   // 만료된 캐시가 있으면 즉시 반환, 백그라운드에서 갱신 (블로킹 없음)
-  try {
-    const child = spawn('npm', ['view', '@anthropic-ai/claude-code', 'version'], {
-      stdio: ['ignore', 'pipe', 'ignore'],
-      timeout: 3000,
-      shell: true,
-    });
-    let stdout = '';
-    child.stdout.on('data', (d) => { stdout += d; });
-    child.on('close', (code) => {
-      if (code === 0 && stdout.trim()) {
-        try { writeFileSync(VERSION_CACHE_PATH, JSON.stringify({ version: stdout.trim(), timestamp: Date.now() })); } catch {}
-      }
-    });
-  } catch {}
+  refreshLatestVersionInBackground();
 
   return cachedVersion; // 이전 캐시값 반환 (없으면 null)
 }

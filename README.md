@@ -27,7 +27,7 @@ That's it — **no manual setup re-run is needed**. A `SessionStart` hook instal
 
 ## Platform notes
 
-On Windows, setup also generates `~/.claude/hud/statusline.cmd` — a thin wrapper that invokes node with the `.mjs`, since Windows can't execute `.mjs` directly via PATHEXT/shebang. The wrapper prefers `%ProgramFiles%\nodejs\node.exe` and falls back to the node binary that ran setup. If you switch node installations (e.g., uninstall the system node, then install via fnm), re-run `/claude-kit:setup` once to regenerate the wrapper with the new node path.
+On Windows, setup points `statusLine.command` directly at `node statusline.mjs` instead of generating a `statusline.cmd` wrapper. This still avoids relying on PATHEXT/shebang execution, but removes the extra batch-file layer that could leave orphaned `cmd.exe` processes after Claude Code was hard-killed. The command prefers `%ProgramFiles%\nodejs\node.exe` and falls back to the node binary that ran setup. If you switch node installations, re-run `/claude-kit:setup` once to refresh the node reference.
 
 ## Troubleshooting
 
@@ -35,7 +35,7 @@ On Windows, setup also generates `~/.claude/hud/statusline.cmd` — a thin wrapp
 /claude-kit:doctor
 ```
 
-Checks node availability, HUD file presence, settings.json configuration, the SessionStart hook, and the wrapper's node path on Windows — auto-fixes anything fixable.
+Checks node availability, HUD file presence, settings.json configuration, the SessionStart hook, and stale Windows node references / legacy `.cmd` wrapper configuration — auto-fixes anything fixable.
 
 ## Nerd Font Setup
 
