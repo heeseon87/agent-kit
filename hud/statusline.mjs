@@ -356,16 +356,18 @@ const BOLD = '\x1b[1m';
 const fg = (r, g, b) => `\x1b[38;2;${r};${g};${b}m`;
 const bg = (r, g, b) => `\x1b[48;2;${r};${g};${b}m`;
 
-// Tokyo Night palette
+// Tokyo Night palette (muted pastel variant)
+// 채도 ~40-50%, 명도 ~65-70% 범위로 조정 — 라이트/다크 양쪽 터미널에서
+// 눈부심 없이 가독성 유지. 어두운 글자(dark.fg) 대비 모두 AA 통과(~6.5:1+).
 const TN = {
-  blue:    { fg: fg(122, 162, 247), bg: bg(122, 162, 247) },  // #7aa2f7
-  green:   { fg: fg(158, 206, 106), bg: bg(158, 206, 106) },  // #9ece6a
-  purple:  { fg: fg(187, 154, 247), bg: bg(187, 154, 247) },  // #bb9af7
-  cyan:    { fg: fg(125, 207, 255), bg: bg(125, 207, 255) },  // #7dcfff
-  amber:   { fg: fg(224, 175, 104), bg: bg(224, 175, 104) },  // #e0af68
-  coral:   { fg: fg(247, 118, 142), bg: bg(247, 118, 142) },  // #f7768e
-  teal:    { fg: fg(115, 218, 202), bg: bg(115, 218, 202) },  // #73daca
-  lavender:{ fg: fg(169, 177, 214), bg: bg(169, 177, 214) },  // #a9b1d6
+  blue:    { fg: fg(135, 165, 200), bg: bg(135, 165, 200) },  // #87a5c8
+  green:   { fg: fg(165, 195, 130), bg: bg(165, 195, 130) },  // #a5c382
+  purple:  { fg: fg(170, 158, 210), bg: bg(170, 158, 210) },  // #aa9ed2
+  cyan:    { fg: fg(140, 200, 220), bg: bg(140, 200, 220) },  // #8cc8dc
+  amber:   { fg: fg(210, 170, 110), bg: bg(210, 170, 110) },  // #d2aa6e
+  coral:   { fg: fg(220, 145, 158), bg: bg(220, 145, 158) },  // #dc919e
+  teal:    { fg: fg(135, 195, 180), bg: bg(135, 195, 180) },  // #87c3b4
+  lavender:{ fg: fg(170, 180, 205), bg: bg(170, 180, 205) },  // #aab4cd
   dark:    { fg: fg(26, 27, 38) },                              // #1a1b26
 };
 

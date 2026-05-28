@@ -2,19 +2,38 @@
 
 Tokyo Night powerline statusline + essential skills for Claude Code. Works on macOS, Linux, and Windows.
 
+This repository also ships a Codex-friendly companion plugin, `agent-kit`, for
+the workflow skills that are not Claude Code specific.
+
 ## Prerequisites
 
 [Node.js](https://nodejs.org/) 18 or newer in PATH. On Windows the standard installer (`C:\Program Files\nodejs`) is recommended; nvm-windows / fnm / volta also work.
 
 ## Install (one-time)
 
+### Claude Code
+
 ```
-/plugin marketplace add heeseon87/claude-kit
+/plugin marketplace add heeseon87/agent-kit
 /plugin install claude-kit@hs
 /claude-kit:setup
 ```
 
 Then restart Claude Code once. The statusline appears at the bottom of the screen.
+
+### Codex
+
+Add this repository as a Codex plugin marketplace:
+
+```bash
+codex plugin marketplace add heeseon87/agent-kit
+```
+
+Then open Codex Plugins, search for `Agent Kit`, and install it.
+
+The Codex plugin intentionally excludes the Claude Code HUD/statusline setup.
+It includes only the portable workflow skills: edit, explain, implement,
+interview, and pretty.
 
 ## Update
 

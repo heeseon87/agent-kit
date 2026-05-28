@@ -9,13 +9,13 @@
     {
       "name": "claude-kit",
       "description": "Powerline statusline (Tokyo Night theme) + interview, edit, explain, implement, pretty skills",
-      "version": "1.3.13",
+      "version": "1.3.14",
       "author": {
         "name": "heeseon"
       },
       "source": "./",
       "category": "productivity",
-      "homepage": "https://github.com/heeseon87/claude-kit",
+      "homepage": "https://github.com/heeseon87/agent-kit",
       "tags": [
         "statusline",
         "hud",
@@ -27,5 +27,5 @@
       ]
     }
   ],
-  "version": "1.3.13"
+  "version": "1.3.14"
 }
