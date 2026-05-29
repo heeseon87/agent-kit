@@ -17,7 +17,7 @@
  * so users never need to manually re-run setup after a plugin update.
  */
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, chmodSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, chmodSync, lstatSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -97,6 +97,20 @@ mkdirSync(HUD_DIR, { recursive: true });
 const sourceRoot = getSourceRoot();
 const srcMjs = join(sourceRoot, 'hud', 'statusline.mjs');
 const destMjs = join(HUD_DIR, 'statusline.mjs');
+
+// Migration: older setups (≤ symlink era) made destMjs a symlink into the
+// volatile marketplace source. When that marketplace is later removed or
+// renamed the link dangles, and copyFileSync(src, dangling-symlink) crashes
+// with ENOENT (macOS copyfile follows the link into a missing parent dir).
+// existsSync() reports false for a dangling symlink, so it slips past the
+// guard below — handle it explicitly. Always replace a symlink with a real copy.
+try {
+  if (lstatSync(destMjs).isSymbolicLink()) {
+    backup(destMjs);
+    unlinkSync(destMjs);
+    log(`[yuumi] Replaced legacy statusline symlink with a real file`);
+  }
+} catch { /* destMjs absent — nothing to migrate */ }
 
 if (existsSync(srcMjs) && !filesEqual(srcMjs, destMjs)) {
   backup(destMjs);

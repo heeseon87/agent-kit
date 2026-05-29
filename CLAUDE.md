@@ -52,7 +52,7 @@ Non-obvious invariants — do not "simplify" these without understanding why the
 
 ## Setup script behavior (`scripts/plugin-setup.mjs`)
 
-- Installs by **symlinking** `~/.claude/hud/statusline.mjs` → the marketplace source (detected via the `/plugins/cache/<marketplace>/` path pattern, then redirected to `~/.claude/plugins/marketplaces/<marketplace>/`). Users auto-receive updates on marketplace refresh — they do not need to re-run setup.
+- Installs by **copying** the latest plugin `hud/statusline.mjs` to the stable `~/.claude/hud/statusline.mjs` (source resolved via the `/plugins/cache/<marketplace>/` path pattern, then redirected to `~/.claude/plugins/marketplaces/<marketplace>/`). The `SessionStart` hook re-runs this script every session to re-copy, so users auto-receive updates without re-running setup. **Symlink migration:** if the dest is a leftover symlink from older symlink-based installs, it is `unlink`ed before the copy — a *dangling* symlink (e.g. after the pointed-to marketplace is renamed/removed) slips past `existsSync` and would otherwise crash `copyFileSync` with ENOENT.
 - Backs up any pre-existing non-symlink HUD file and the current `settings.json` into `~/.claude/hud/backup/<name>.<timestamp>.bak` before overwriting.
 - Overwrites `settings.json.statusLine` unconditionally with `{ type: "command", command: "\"<path>\"", refreshInterval: 1 }`. Any other keys in `settings.json` are preserved.
 

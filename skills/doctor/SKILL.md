@@ -93,6 +93,7 @@ Fail diagnostics:
 - **Windows, node path missing / stale** → Re-run setup (Step 6). It rewrites the direct `node statusline.mjs` command with the current node reference.
 - **Windows, settings still points at `statusline.cmd`** → Re-run setup (Step 6). The legacy wrapper is removed from the statusline hot path to avoid orphaned `cmd.exe` processes.
 - **Unix, "permission denied"** → Step 3 fix.
+- **`~/.claude/hud/statusline.mjs` is a symlink (check with `ls -l` / `readlink`), esp. dangling** → A pre-symlink-era install left the dest as a symlink into a marketplace that was later renamed/removed, so it now points at nothing. `existsSync` reports false for a dangling link, so the statusline silently fails to launch. Re-run setup (Step 6) — 1.3.17+ unlinks any symlink dest and writes a real file. On older setup builds, `rm ~/.claude/hud/statusline.mjs` first, then re-run.
 - **No output, exit 0** → Possibly a runtime crash silenced by Claude Code; run with stdin sample above to see the real error.
 
 ### 6. Reinstall (when files are missing or wrapper is stale)
