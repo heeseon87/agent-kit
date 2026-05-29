@@ -26,7 +26,7 @@ If a reader has to re-read a paragraph, you've already lost. If they get stuck a
 
 3. **Design the page structure yourself.** Do NOT follow a fixed template. The structure you choose should serve *this specific target*. Some explanations are best as a single long essay. Others as a sequence of numbered acts. Others as a single chart with prose around it. There is no canonical section list — there is the structure this particular target needs.
 
-4. **Render with `yuumi:pretty`.** A self-contained `.html` file in the project's current working directory. Use the shared pretty assets (`../pretty/assets/shell.html`, `../pretty/references/components.md`, `../pretty/references/svg-patterns.md`) for the fixed Anthropic-style visual language; the *content structure* is yours to invent each time.
+4. **Render with `yuumi:pretty`.** A single-file `.html` file in the project's current working directory. Use the shared pretty assets (`../pretty/assets/shell.html`, `../pretty/references/components.md`, `../pretty/references/svg-patterns.md`) for the fixed Anthropic-style visual language; the shell loads pinned PrismJS CDN scripts by default for marketplace scan-safety. Inline those scripts only if the user explicitly needs offline/self-contained delivery; the *content structure* is yours to invent each time.
 
 5. **Verify, then open in browser.** Check that the saved HTML opens cleanly, has no console errors, and reads correctly in the first viewport. Then `open {slug}-explained.html` on macOS. Tell the user the file path. Don't re-explain the contents in chat — the artifact is the deliverable.
 

@@ -37,7 +37,7 @@ The file is updated *as you work*, not at the end. The user may open it mid-impl
 
 ## Output: Anthropic-style HTML artifact
 
-A self-contained `<topic-slug>-implementation-notes.html` file using the shared `yuumi:pretty` visual language — warm parchment background, clay accent, Hahmlet/serif editorial typography, JetBrains Mono for code, generous whitespace. The visual identity is centralized in `pretty` so explain, implement, and standalone design artifacts do not drift.
+A single-file `<topic-slug>-implementation-notes.html` file using the shared `yuumi:pretty` visual language — warm parchment background, clay accent, Hahmlet/serif editorial typography, JetBrains Mono for code, generous whitespace. The shell uses pinned PrismJS CDN scripts by default for marketplace scan-safety; inline them only if the user explicitly needs offline/self-contained delivery. The visual identity is centralized in `pretty` so explain, implement, and standalone design artifacts do not drift.
 
 ## File output
 

@@ -4,7 +4,7 @@ description: Create Anthropic-style HTML artifacts with the shared Yuumi visual 
 argument-hint: [brief]
 ---
 
-Design `$1` as a self-contained Anthropic-style HTML artifact.
+Design `$1` as a single-file Anthropic-style HTML artifact. The shell loads pinned PrismJS files from jsDelivr by default so the marketplace package stays scan-safe; inline those files only when the final deliverable explicitly needs offline/self-contained behavior.
 
 The output should feel like it belongs in the same family as Anthropic / Claude pages: warm paper, clay accent, quiet editorial hierarchy, sparse line-art diagrams, hairline rules, generous breathing room, and zero generic SaaS sludge.
 
