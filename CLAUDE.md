@@ -4,17 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository purpose
 
-`claude-kit` is a Claude Code **plugin** distributed through a marketplace (`heeseon87/claude-kit`). It ships:
+`yuumi` is a Claude Code **plugin** distributed through a marketplace (`heeseon87/yuumi`). It ships:
 
 - A Tokyo Night powerline statusline — `hud/statusline.mjs`
-- A post-install setup script — `scripts/plugin-setup.mjs` (invoked via `/claude-kit:setup`)
+- A post-install setup script — `scripts/plugin-setup.mjs` (invoked via `/yuumi:setup`)
 - Seven slash commands under `skills/<name>/SKILL.md` — `setup`, `doctor`, `interview`, `edit`, `explain`, `implement`, `pretty`
 
 There is no build, lint, or test pipeline. The repo is a flat collection of `.mjs` files and `SKILL.md` prompts that Claude Code reads directly.
 
 ## Release workflow
 
-Publishing is "commit + push to `main`". Users pull via `/plugin marketplace add heeseon87/claude-kit`.
+Publishing is "commit + push to `main`". Users pull via `/plugin marketplace add heeseon87/yuumi`.
 
 **Before every push**, bump the patch version. The three version fields must stay in sync:
 
@@ -32,7 +32,7 @@ To smoke-test a statusline change locally (the script reads stdin JSON, never CL
 echo '{"model":{"display_name":"Opus"},"cwd":"'$PWD'","version":"1.0.0","context_window":{"used_percentage":12,"context_window_size":200000}}' | node hud/statusline.mjs
 ```
 
-For end-to-end verification, run `/claude-kit:doctor` inside Claude Code — it checks node availability, file presence, exec bit, and the `settings.json` command shape.
+For end-to-end verification, run `/yuumi:doctor` inside Claude Code — it checks node availability, file presence, exec bit, and the `settings.json` command shape.
 
 ## Statusline architecture (`hud/statusline.mjs`)
 
@@ -43,7 +43,7 @@ Claude Code runs this script on every statusline refresh (interval = 1s), piping
 
 Non-obvious invariants — do not "simplify" these without understanding why they exist:
 
-- **Statusline launcher.** On macOS/Linux, `settings.json → statusLine.command` is the quoted `statusline.mjs` path and relies on the shebang (`#!/usr/bin/env node`) so version managers keep working. On Windows, setup writes a direct quoted node executable plus quoted `statusline.mjs` path. Do **not** route Windows through `statusline.cmd`; the batch wrapper can leave orphaned `cmd.exe` processes when Claude Code is hard-killed. `/claude-kit:doctor` should detect stale node paths and legacy `.cmd` configuration.
+- **Statusline launcher.** On macOS/Linux, `settings.json → statusLine.command` is the quoted `statusline.mjs` path and relies on the shebang (`#!/usr/bin/env node`) so version managers keep working. On Windows, setup writes a direct quoted node executable plus quoted `statusline.mjs` path. Do **not** route Windows through `statusline.cmd`; the batch wrapper can leave orphaned `cmd.exe` processes when Claude Code is hard-killed. `/yuumi:doctor` should detect stale node paths and legacy `.cmd` configuration.
 - **Allocation-based colors.** The 5h and 7d bars use `getAllocationLevel(usedPercent, elapsed, totalPeriods)`. The threshold is not a fixed percent — it's a moving target based on *elapsed time* inside the window. Level 0 ("이월") means you are under-spending vs. the proportional line; levels 1 → 4 escalate as you burn through faster than the clock. Changes cascade into both `allocationBar` and `colorAllocationPercent`.
 - **Session start from transcript.** `getSessionStartFromTranscript` reads the first 2 KB of the transcript file and scans multiple timestamp fields (top-level `timestamp`, `snapshot.timestamp`, `data.timestamp`) to sidestep a bug in the default tail-based parser. Do not convert this to a tail read.
 - **Version check is non-blocking.** `getLatestVersion` returns the cached value synchronously and spawns a detached `node -e` registry refresh on cache expiry (1 h TTL at `~/.claude/.claude-code-latest-version.json`). Never `await` / `execSync` the network call, and do not use `npm view`/`shell: true` in the hot path — it would stall every 1 s refresh or create extra Windows shell processes.
@@ -58,7 +58,7 @@ Non-obvious invariants — do not "simplify" these without understanding why the
 
 ## Skills structure
 
-Each skill is a single `SKILL.md` file under `skills/<name>/`. The YAML `name` field must be `claude-kit:<name>` — that is the slash command. The file is the entire prompt; there is no supporting JS / config.
+Each skill is a single `SKILL.md` file under `skills/<name>/`. The YAML `name` field must be `yuumi:<name>` — that is the slash command. The file is the entire prompt; there is no supporting JS / config.
 
 ## Runtime requirements users must satisfy
 

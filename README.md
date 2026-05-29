@@ -1,8 +1,8 @@
-# claude-kit
+# yuumi
 
 Tokyo Night powerline statusline + essential skills for Claude Code. Works on macOS, Linux, and Windows.
 
-This repository also ships a Codex-friendly companion plugin, `agent-kit`, for
+This repository also ships a Codex-friendly build of `yuumi` for
 the workflow skills that are not Claude Code specific.
 
 ## Prerequisites
@@ -14,9 +14,9 @@ the workflow skills that are not Claude Code specific.
 ### Claude Code
 
 ```
-/plugin marketplace add heeseon87/agent-kit
-/plugin install claude-kit@hs
-/claude-kit:setup
+/plugin marketplace add heeseon87/yuumi
+/plugin install yuumi@yuumi
+/yuumi:setup
 ```
 
 Then restart Claude Code once. The statusline appears at the bottom of the screen.
@@ -26,10 +26,10 @@ Then restart Claude Code once. The statusline appears at the bottom of the scree
 Add this repository as a Codex plugin marketplace:
 
 ```bash
-codex plugin marketplace add heeseon87/agent-kit
+codex plugin marketplace add heeseon87/yuumi
 ```
 
-Then open Codex Plugins, search for `Agent Kit`, and install it.
+Then open Codex Plugins, search for `Yuumi`, and install it.
 
 The Codex plugin intentionally excludes the Claude Code HUD/statusline setup.
 It includes only the portable workflow skills: edit, explain, implement,
@@ -38,20 +38,20 @@ interview, and pretty.
 ## Update
 
 ```
-/plugin marketplace update hs
-/plugin update claude-kit@hs
+/plugin marketplace update yuumi
+/plugin update yuumi@yuumi
 ```
 
 That's it — **no manual setup re-run is needed**. A `SessionStart` hook installed by the initial setup automatically syncs HUD files with the latest plugin version every time you start a session.
 
 ## Platform notes
 
-On Windows, setup points `statusLine.command` directly at `node statusline.mjs` instead of generating a `statusline.cmd` wrapper. This still avoids relying on PATHEXT/shebang execution, but removes the extra batch-file layer that could leave orphaned `cmd.exe` processes after Claude Code was hard-killed. The command prefers `%ProgramFiles%\nodejs\node.exe` and falls back to the node binary that ran setup. If you switch node installations, re-run `/claude-kit:setup` once to refresh the node reference.
+On Windows, setup points `statusLine.command` directly at `node statusline.mjs` instead of generating a `statusline.cmd` wrapper. This still avoids relying on PATHEXT/shebang execution, but removes the extra batch-file layer that could leave orphaned `cmd.exe` processes after Claude Code was hard-killed. The command prefers `%ProgramFiles%\nodejs\node.exe` and falls back to the node binary that ran setup. If you switch node installations, re-run `/yuumi:setup` once to refresh the node reference.
 
 ## Troubleshooting
 
 ```
-/claude-kit:doctor
+/yuumi:doctor
 ```
 
 Checks node availability, HUD file presence, settings.json configuration, the SessionStart hook, and stale Windows node references / legacy `.cmd` wrapper configuration — auto-fixes anything fixable.

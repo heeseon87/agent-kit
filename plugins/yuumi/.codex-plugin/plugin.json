@@ -1,0 +1,30 @@
+{
+  "name": "yuumi",
+  "version": "0.1.0",
+  "description": "Essential agent workflow skills for spatial editing, code explanation, implementation notes, interviews, and polished HTML artifacts.",
+  "author": {
+    "name": "heeseon"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Yuumi",
+    "shortDescription": "Workflow skills for coding agents.",
+    "longDescription": "Yuumi bundles practical agent workflow skills for spatial editing, plan interviews, code explanation, implementation decision logs, and polished HTML artifacts.",
+    "developerName": "heeseon",
+    "category": "Productivity",
+    "capabilities": [
+      "skills"
+    ],
+    "defaultPrompt": "Help me use Yuumi."
+  },
+  "keywords": [
+    "agent-workflow",
+    "skills",
+    "spatial-editing",
+    "explain",
+    "implementation-notes",
+    "pretty",
+    "html",
+    "interview"
+  ]
+}

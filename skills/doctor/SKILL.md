@@ -1,9 +1,9 @@
 ---
-name: claude-kit:doctor
-description: Diagnose and fix claude-kit statusline issues (broken paths, permissions, outdated settings)
+name: yuumi:doctor
+description: Diagnose and fix yuumi statusline issues (broken paths, permissions, outdated settings)
 ---
 
-# Claude Kit Doctor
+# Yuumi Doctor
 
 Diagnose and automatically fix common statusline issues. **Adapt every check to the user's OS** (macOS/Linux vs Windows) — the expected statusLine entry differs:
 
@@ -62,12 +62,17 @@ Common problems:
 
 ### 4b. Check SessionStart auto-sync hook (1.3.0+)
 
-claude-kit registers a `SessionStart` hook so HUD files refresh automatically every session — no manual setup re-run needed after `/plugin update`. Verify:
+yuumi registers a `SessionStart` hook so HUD files refresh automatically every session — no manual setup re-run needed after `/plugin update`. Verify:
 
 - `settings.hooks.SessionStart` exists (array)
-- Exactly one entry's command contains `claude-kit` (the auto-sync walker)
+- Exactly one entry's command contains `yuumi` (the auto-sync walker)
 
-Missing or duplicated → run setup. The setup is idempotent and only adds/replaces the claude-kit entry, leaving any other tools' SessionStart hooks intact.
+Missing or duplicated → run setup. The setup is idempotent and only adds/replaces the yuumi entry, leaving any other tools' SessionStart hooks intact.
+
+**Legacy `claude-kit` entry (pre-rename installs).** Before the rename to `yuumi`, the auto-sync hook command contained the marker `claude-kit`. The new setup only matches `yuumi`, so an old entry is left untouched and **appends** alongside the new one — two hooks then fight to overwrite `~/.claude/hud/statusline.mjs` every session. Detect and remove it:
+
+- Any `SessionStart` entry whose command contains `claude-kit` (or `agent-kit`) but **not** `yuumi` is a stale pre-rename hook → remove that entry from `settings.json` (preserve all other entries), then re-run setup.
+- Also remove the stale cached plugin dir if present: `~/.claude/plugins/cache/<marketplace>/claude-kit` (the new install lives under `.../yuumi`).
 
 ### 5. Verify the statusline actually runs
 
@@ -92,10 +97,10 @@ Fail diagnostics:
 
 ### 6. Reinstall (when files are missing or wrapper is stale)
 
-Run `/claude-kit:setup` (or invoke the script directly — picks the highest cached version, never an older stale one):
+Run `/yuumi:setup` (or invoke the script directly — picks the highest cached version, never an older stale one):
 
 ```bash
-node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.join(h,'.claude/plugins/cache'),r=[];function w(d){try{for(var e of fs.readdirSync(d,{withFileTypes:true})){var f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name=='plugin-setup.mjs'&&f.includes('claude-kit')){var v=p.basename(p.dirname(p.dirname(f)));if(/^[0-9]+\.[0-9]+\.[0-9]+$/.test(v))r.push([v,f])}}}catch(_){}}w(c);if(!r.length){console.error('plugin-setup.mjs not found in cache');process.exit(1)}r.sort(function(a,b){var x=a[0].split('.').map(Number),y=b[0].split('.').map(Number);for(var i=0;i<3;i++)if(x[i]!==y[i])return y[i]-x[i];return 0});require('child_process').execFileSync(process.execPath,[r[0][1]],{stdio:'inherit'})"
+node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.join(h,'.claude/plugins/cache'),r=[];function w(d){try{for(var e of fs.readdirSync(d,{withFileTypes:true})){var f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name=='plugin-setup.mjs'&&f.includes('yuumi')){var v=p.basename(p.dirname(p.dirname(f)));if(/^[0-9]+\.[0-9]+\.[0-9]+$/.test(v))r.push([v,f])}}}catch(_){}}w(c);if(!r.length){console.error('plugin-setup.mjs not found in cache');process.exit(1)}r.sort(function(a,b){var x=a[0].split('.').map(Number),y=b[0].split('.').map(Number);for(var i=0;i<3;i++)if(x[i]!==y[i])return y[i]-x[i];return 0});require('child_process').execFileSync(process.execPath,[r[0][1]],{stdio:'inherit'})"
 ```
 
 The setup is idempotent — it backs up existing files, refreshes `statusline.mjs`, and rewrites the `statusLine` block in settings.json. On Windows it writes a direct `node statusline.mjs` command rather than a `.cmd` wrapper, because the wrapper can leave orphaned `cmd.exe` processes after hard-killed Claude Code sessions.
@@ -103,7 +108,7 @@ The setup is idempotent — it backs up existing files, refreshes `statusline.mj
 ## Output format
 
 ```
-claude-kit doctor (windows)
+yuumi doctor (windows)
   [pass] node available (v24.15.0)
   [pass] statusline.mjs exists
   [pass] settings.json uses direct node + statusline.mjs

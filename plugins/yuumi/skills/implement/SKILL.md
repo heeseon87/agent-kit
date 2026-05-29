@@ -45,7 +45,7 @@ Save as `<topic-slug>-implementation-notes.html` in the current working director
 
 Examples:
 
-- `rate-limit-hud-implementation-notes.html`
+- `auth-refresh-token-implementation-notes.html`
 - `auth-refresh-token-implementation-notes.html`
 - `user-analysis-migration-implementation-notes.html`
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Claude Kit - Setup & Sync
+ * Yuumi - Setup & Sync
  *
  * Two modes:
- *   default   (/claude-kit:setup) — verbose, backs up, prints summary
+ *   default   (/yuumi:setup) — verbose, backs up, prints summary
  *   --quiet   (SessionStart hook) — silent unless changes, no backups
  *
  * What it does:
@@ -73,7 +73,7 @@ function backup(filePath) {
   const name = basename(filePath);
   const backupPath = join(BACKUP_DIR, `${name}.${timestamp}.bak`);
   copyFileSync(filePath, backupPath);
-  log(`[claude-kit] Backed up ${name} → backup/${name}.${timestamp}.bak`);
+  log(`[yuumi] Backed up ${name} → backup/${name}.${timestamp}.bak`);
 }
 
 function filesEqual(a, b) {
@@ -84,11 +84,11 @@ function filesEqual(a, b) {
 // SessionStart hook command — finds the latest plugin-setup.mjs in cache (SemVer
 // descending) and re-runs it in --quiet mode. Stale 1.x.x dirs are skipped.
 // Single line so it round-trips through JSON without surprises.
-const HOOK_COMMAND = `node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.join(h,'.claude/plugins/cache'),r=[];function w(d){try{for(var e of fs.readdirSync(d,{withFileTypes:true})){var f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name=='plugin-setup.mjs'&&f.includes('claude-kit')){var v=p.basename(p.dirname(p.dirname(f)));if(/^[0-9]+\\.[0-9]+\\.[0-9]+$/.test(v))r.push([v,f])}}}catch(_){}}w(c);if(!r.length)process.exit(0);r.sort(function(a,b){var x=a[0].split('.').map(Number),y=b[0].split('.').map(Number);for(var i=0;i<3;i++)if(x[i]!==y[i])return y[i]-x[i];return 0});require('child_process').execFile(process.execPath,[r[0][1],'--quiet'],function(){})"`;
+const HOOK_COMMAND = `node -e "var p=require('path'),fs=require('fs'),h=require('os').homedir(),c=p.join(h,'.claude/plugins/cache'),r=[];function w(d){try{for(var e of fs.readdirSync(d,{withFileTypes:true})){var f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name=='plugin-setup.mjs'&&f.includes('yuumi')){var v=p.basename(p.dirname(p.dirname(f)));if(/^[0-9]+\\.[0-9]+\\.[0-9]+$/.test(v))r.push([v,f])}}}catch(_){}}w(c);if(!r.length)process.exit(0);r.sort(function(a,b){var x=a[0].split('.').map(Number),y=b[0].split('.').map(Number);for(var i=0;i<3;i++)if(x[i]!==y[i])return y[i]-x[i];return 0});require('child_process').execFile(process.execPath,[r[0][1],'--quiet'],function(){})"`;
 
 let changed = 0;
 
-log('[claude-kit] Running setup...');
+log('[yuumi] Running setup...');
 
 // 1. Ensure HUD dir
 mkdirSync(HUD_DIR, { recursive: true });
@@ -103,7 +103,7 @@ if (existsSync(srcMjs) && !filesEqual(srcMjs, destMjs)) {
   copyFileSync(srcMjs, destMjs);
   try { chmodSync(destMjs, 0o755); } catch { /* Windows */ }
   changed++;
-  log(`[claude-kit] Updated ${destMjs}`);
+  log(`[yuumi] Updated ${destMjs}`);
 }
 
 // 3. Windows avoids a .cmd wrapper here. The old wrapper added an extra cmd.exe
@@ -132,11 +132,11 @@ try {
     hooks: [{ type: 'command', command: HOOK_COMMAND }]
   };
 
-  // Find existing claude-kit entry by marker, replace in place; else append.
+  // Find existing yuumi entry by marker, replace in place; else append.
   // Preserves other tools' SessionStart hooks.
   settings.hooks = settings.hooks || {};
   const arr = settings.hooks.SessionStart = settings.hooks.SessionStart || [];
-  const idx = arr.findIndex(e => e?.hooks?.some(h => typeof h?.command === 'string' && h.command.includes('claude-kit')));
+  const idx = arr.findIndex(e => e?.hooks?.some(h => typeof h?.command === 'string' && h.command.includes('yuumi')));
   const before = JSON.stringify({ statusLine: settings.statusLine, hookEntry: idx >= 0 ? arr[idx] : null });
 
   settings.statusLine = desiredStatusLine;
@@ -149,15 +149,15 @@ try {
     backup(SETTINGS_FILE);
     writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
     changed++;
-    log('[claude-kit] Updated settings.json (statusLine + SessionStart hook)');
+    log('[yuumi] Updated settings.json (statusLine + SessionStart hook)');
   }
 } catch (e) {
-  if (!QUIET) console.log('[claude-kit] Warning: settings.json update failed —', e.message);
+  if (!QUIET) console.log('[yuumi] Warning: settings.json update failed —', e.message);
 }
 
 if (!QUIET) {
   log('');
-  log(`[claude-kit] ${changed === 0 ? 'Already up to date.' : `${changed} item(s) updated.`}`);
+  log(`[yuumi] ${changed === 0 ? 'Already up to date.' : `${changed} item(s) updated.`}`);
   log('');
   log('  Statusline: Tokyo Night powerline theme');
   log('  Skills:     /setup, /doctor, /interview, /edit, /explain, /implement, /pretty');
