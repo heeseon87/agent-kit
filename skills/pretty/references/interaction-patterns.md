@@ -4,21 +4,24 @@ A catalog of the interactive components baked into `../assets/shell.html`. Same 
 
 ## Navigation scaffold
 
-### `.toc` — sticky table of contents (scrollspy)
-A right-rail (desktop) / top strip (mobile) `<nav>` of anchor links. The current section auto-highlights as the reader scrolls. **Removes:** "where am I in a long document" navigation burden. **Use when:** the page has 4+ `<h2>` sections or scrolls past ~3 viewports. **Don't use:** short single-idea pages — the rail is noise.
+### `.toc` — vertically-centered table of contents (scrollspy)
+A `<nav>` of anchor links pinned to the right edge and **vertically centered**, auto-highlighting the current section as the reader scrolls. **Removes:** "where am I in a long document" navigation burden. **Use when:** the page has 4+ `<h2>` sections or scrolls past ~3 viewports. **Don't use:** short single-idea pages — the rail is noise.
 
-**Structure (required):** make `<nav class="toc">` a *direct child* of `.container` and wrap the rest of the body in `<main>`:
+**Out of flow — never steals content width.** The TOC is `position: fixed`, so the content column always renders full width regardless of whether a TOC is present. Two responsive modes, both handled entirely by the shell CSS:
+
+- **≥1480px** — there is room beside the centered 1140px column, so the full label rail parks in the right margin.
+- **<1480px** — the rail collapses to a *silhouette* of small bars at the right edge (you can still see how many sections there are and which is current); hovering the column or focusing a link expands it into an overlay **on top of** the content. The content never reflows. It stays on the side at every width — it never snaps to the top.
+
+**Structure:** make `<nav class="toc">` a *direct child* of `.container`. A `<main>` wrapper around the rest of the body is optional (semantic, harmless) — it is no longer required for layout, because the fixed TOC is out of flow.
 
 ```html
 <div class="container">
   <nav class="toc"> … anchor links … </nav>
-  <main>
-    … eyebrow, h1, all sections, footnotes …
-  </main>
+  … eyebrow, h1, all sections, footnotes …   (optionally wrapped in <main>)
 </div>
 ```
 
-The shell flips `.container` into a two-column layout only via `.container:has(> .toc)`, so `<main>` becomes the single content column and the sticky rail keeps its own right gutter for the full article height. Without the `<main>` wrapper the content elements become flex items and the layout breaks. Do **not** make the TOC a `float: right` + `position: sticky` element — a float only reserves space for its own height, so once the article scrolls past the float the body flows full-width and the pinned rail overlaps it.
+Do **not** make the TOC a flex/grid column or a `float` — a flex/grid column reserves space and shrinks the content; a `float` + `position: sticky` overlaps the body once it scrolls past the float. Fixed positioning is what keeps the content width constant.
 
 ### `.fold` — collapsible `<details>` section
 Hairline-topped section with a clay disclosure marker. Open in source (JS-off shows everything). **Removes:** first-screen overload — keep the headline visible, defer depth. **Use when:** a section is optional depth (proofs, edge cases, full logs). **Don't use:** to hide the page's main point. The lede and core claim must never be folded.
