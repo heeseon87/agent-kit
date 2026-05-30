@@ -2,10 +2,8 @@
   "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
   "groupings": [
     {
-      "title": "Yuumi Claude Code skills",
+      "title": "Yuumi workflow skills",
       "skills": [
-        "setup",
-        "doctor",
         "interview",
         "edit",
         "explain",

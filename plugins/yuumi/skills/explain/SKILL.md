@@ -1,7 +1,7 @@
 ---
 name: explain
 description: Render an Anthropic-style HTML explainer of the target — structure designed per-target with cognitive-load-focused visuals
-version: 1.3.22
+version: 1.3.23
 argument-hint: [target]
 ---
 

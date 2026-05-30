@@ -1,7 +1,7 @@
 ---
 name: interview
 description: Interview me about the plan
-version: 1.3.22
+version: 1.3.23
 argument-hint: [plan]
 ---
 

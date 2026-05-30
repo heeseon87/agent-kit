@@ -24,23 +24,25 @@ Publishing is "commit + push to `main`". Users pull via `/plugin marketplace add
 
 If the version is not bumped, existing installs do not know to re-pull.
 
-Hermes users install the slash-command prompts through skills.sh / Hermes Skills Hub, not the Claude Code plugin marketplace. Keep Hermes release metadata in sync during the same release:
+Hermes users install the cross-agent workflow prompts through skills.sh / Hermes Skills Hub, not the Claude Code plugin marketplace. Keep Hermes release metadata in sync during the same release:
 
-- Keep `skills.sh.json` listing every published skill directory: `setup`, `doctor`, `interview`, `edit`, `explain`, `implement`, `pretty`.
-- Add or update `version: <plugin version>` in each `skills/<name>/SKILL.md` frontmatter. Hermes update detection uses content hashes, not this version field, but the field keeps the published skill revision human-readable and aligned with the Claude marketplace version.
-- Make sure any new supporting files for a skill live under that skill directory (`references/`, `assets/`, `examples/`, etc.) so the skills.sh bundle includes them. For example, `yuumi:pretty` ships `assets/shell.html`, `examples/temp-page.html`, and `references/*.md`.
+- Keep `skills.sh.json` listing only the published Hermes workflow skill directories: `interview`, `edit`, `explain`, `implement`, `pretty`.
+- Do **not** publish `setup` or `doctor` through skills.sh. They are Claude Code-only operational slash commands for installing/diagnosing the Tokyo Night statusline and read/update Claude Code settings.
+- Add or update `version: <plugin version>` in each root `skills/<name>/SKILL.md` frontmatter. Hermes update detection uses content hashes, not this version field, but the field keeps the published skill revision human-readable and aligned with the Claude marketplace version.
+- Make sure any new supporting files for a published Hermes skill live under that skill directory (`references/`, `assets/`, `examples/`, etc.) so the skills.sh bundle includes them. For example, `yuumi:pretty` ships `assets/shell.html`, `examples/temp-page.html`, and `references/*.md`.
 - After pushing `main`, verify Hermes sees the release:
   ```bash
   hermes skills check
   hermes skills update
   hermes skills check
   ```
-  The first check should show `update_available` for changed Yuumi skills, and the final check should show `up_to_date`. `yuumi:doctor` may produce a CAUTION scan because it instructs agents to read `~/.claude/settings.json`; that is expected for the diagnostic skill.
+  The first check should show `update_available` for changed published Yuumi workflow skills, and the final check should show `up_to_date`. If an older local Hermes install still has `setup` or `doctor`, treat those as stale local installs rather than supported Hermes-published skills.
 - Do not replace the skills.sh flow with a local `rsync` into `~/.hermes/skills/yuumi`; that only updates one machine and does not prove the public Hermes release path works.
 
 Codex users install through Codex plugin marketplaces. Keep the Codex package in sync during the same release:
 
-- Treat root `skills/` as the canonical skill source, then sync it into `plugins/yuumi/skills/` before release. The Codex copy should match the root skill content except for frontmatter `name`: root skills use `yuumi:<name>` for Claude/Hermes, while Codex plugin skills must use bare names (`setup`, `doctor`, `interview`, `edit`, `explain`, `implement`, `pretty`) so Codex exposes them once as `yuumi:<name>`, not `yuumi:yuumi:<name>`.
+- Treat root `skills/` as the canonical skill source, then sync only the cross-agent workflow skills into `plugins/yuumi/skills/`: `interview`, `edit`, `explain`, `implement`, `pretty`. Do **not** include `setup` or `doctor`; they are Claude Code-only operational commands.
+- The Codex copy should match the allowed root skill content except for frontmatter `name`: root skills use `yuumi:<name>` for Claude/Hermes, while Codex plugin skills must use bare names (`interview`, `edit`, `explain`, `implement`, `pretty`) so Codex exposes them once as `yuumi:<name>`, not `yuumi:yuumi:<name>`.
 - Keep `plugins/yuumi/.codex-plugin/plugin.json` at the same semver as the Claude marketplace version. Use strict semver for public releases; reserve `+codex.<timestamp>` cachebusters for local iteration only.
 - Keep `.agents/plugins/marketplace.json` pointing at `./plugins/yuumi` with `policy.installation: "AVAILABLE"`, `policy.authentication: "ON_INSTALL"`, and category `Productivity`.
 - Validate the Codex manifest and marketplace JSON before committing. The manifest must include real `name`, `version`, `description`, `author.name`, `skills`, and required `interface` fields; `interface.defaultPrompt` should be an array of at most three short prompts.
@@ -50,7 +52,7 @@ Codex users install through Codex plugin marketplaces. Keep the Codex package in
   codex plugin marketplace upgrade yuumi
   codex -C /Users/heeseon/github/claude-kit debug prompt-input "test"
   ```
-  Check the `skills_instructions` block for all seven Yuumi skills (`yuumi:setup`, `yuumi:doctor`, `yuumi:interview`, `yuumi:edit`, `yuumi:explain`, `yuumi:implement`, `yuumi:pretty`) and make sure it does not point at a stale `claude-kit` or old `plugins/cache/yuumi/.../0.1.0` path.
+  Check the `skills_instructions` block for the five Codex-published Yuumi workflow skills (`yuumi:interview`, `yuumi:edit`, `yuumi:explain`, `yuumi:implement`, `yuumi:pretty`), verify `yuumi:setup` and `yuumi:doctor` are absent, and make sure it does not point at a stale `claude-kit` or old `plugins/cache/yuumi/.../0.1.0` path.
 - Do not document `codex plugin add`; this Codex CLI exposes plugin installation through `codex plugin marketplace add/upgrade`.
 
 ## Manual verification

@@ -1,7 +1,7 @@
 {
   "name": "yuumi",
-  "version": "1.3.22",
-  "description": "Tokyo Night statusline and Yuumi workflow skills for editing, explaining, implementation notes, interviews, setup diagnostics, and polished HTML artifacts.",
+  "version": "1.3.23",
+  "description": "Yuumi workflow skills for editing, explaining, implementation notes, interviews, and polished HTML artifacts.",
   "author": {
     "name": "heeseon"
   },
@@ -11,8 +11,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Yuumi",
-    "shortDescription": "Workflow skills and Tokyo Night statusline for coding agents.",
-    "longDescription": "Yuumi bundles practical coding-agent workflow skills for spatial editing, plan interviews, code explanation, implementation decision logs, setup diagnostics, and polished Anthropic-style HTML artifacts.",
+    "shortDescription": "Workflow skills for coding agents.",
+    "longDescription": "Yuumi bundles practical cross-agent workflow skills for spatial editing, plan interviews, code explanation, implementation decision logs, and polished Anthropic-style HTML artifacts.",
     "developerName": "heeseon",
     "category": "Productivity",
     "capabilities": [
@@ -28,10 +28,7 @@
     "brandColor": "#7AA2F7"
   },
   "keywords": [
-    "claude-code",
     "codex",
-    "statusline",
-    "tokyo-night",
     "skills",
     "spatial-editing",
     "explain",
