@@ -1032,7 +1032,7 @@
 			document.querySelectorAll('[data-chart]').forEach(function (el) {
 				try {
 					var cfg = JSON.parse(el.getAttribute('data-chart'));
-					(cfg.data.datasets || []).forEach(function (ds) {
+					((cfg.data && cfg.data.datasets) || []).forEach(function (ds) {
 						if (ds.backgroundColor === undefined) ds.backgroundColor = accent;
 						if (ds.borderColor === undefined) ds.borderColor = accent;
 					});
@@ -1046,7 +1046,7 @@
 			if (!window.mermaid) return;
 			try {
 				mermaid.initialize({
-					startOnLoad: true, theme: 'base',
+					startOnLoad: false, theme: 'base',
 					themeVariables: {
 						primaryColor: token('--surface', '#faf9f5'),
 						primaryTextColor: token('--text', '#141413'),
@@ -1055,6 +1055,7 @@
 						fontFamily: "'JetBrains Mono', ui-monospace, monospace"
 					}
 				});
+				mermaid.run();
 			} catch (e) { document.documentElement.dataset.prettyMermaidError = e.message; }
 		});
 	}
