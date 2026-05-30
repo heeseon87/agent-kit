@@ -747,6 +747,17 @@
 	.stepper-on .stepper-nav button:disabled { color: var(--text-faint); cursor: default; opacity: 0.4; }
 	.stepper-on .stepper-step { display: none; }
 	.stepper-on .stepper-step.current { display: block; }
+
+	/* Filterable table — for long tables (15+ rows). JS-off hides the input. */
+	.table-filter { display: none; }
+	.filter-on .table-filter {
+		display: block; width: 100%; box-sizing: border-box; margin: 0 0 12px;
+		font-family: inherit; font-size: 14px; color: var(--text);
+		background: var(--surface); border: 1px solid var(--rule-strong);
+		border-radius: 3px; padding: 9px 12px;
+	}
+	.filter-on .table-filter:focus { outline: none; border-color: var(--accent); }
+	.filter-on tr[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -970,6 +981,24 @@
 		prev.addEventListener('click', function () { if (i > 0) { i--; render(); } });
 		next.addEventListener('click', function () { if (i < steps.length - 1) { i++; render(); } });
 		render();
+	});
+})();
+</script>
+
+<script>
+/* Filterable table — progressive enhancement. */
+(function () {
+	document.querySelectorAll('[data-filter-table]').forEach(function (wrap) {
+		var input = wrap.querySelector('.table-filter');
+		var rows = Array.prototype.slice.call(wrap.querySelectorAll('tbody tr'));
+		if (!input || !rows.length) return;
+		wrap.classList.add('filter-on');
+		input.addEventListener('input', function () {
+			var q = input.value.trim().toLowerCase();
+			rows.forEach(function (r) {
+				r.hidden = q !== '' && r.textContent.toLowerCase().indexOf(q) === -1;
+			});
+		});
 	});
 })();
 </script>
