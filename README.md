@@ -7,7 +7,7 @@
 
 In *League of Legends*, **Yuumi** is the cat who attaches to a teammate and rides into battle on their back. She doesn't walk the lane — she gets carried. The AD carry does the work; Yuumi tosses out a heal, a little speed, the occasional poke, and somehow finishes the game convinced *she* hard-carried. (She was eating cup ramen behind the ADC the whole time.)
 
-That's the whole idea — and in this story, **you're Yuumi.** Your coding **agent is the ADC**: it walks the lane, takes the fights, does the carrying. You attach to it, ride along, toss out the occasional buff (a prompt, a nudge, a skill), and come away having "carried." This plugin is your Yuumi kit — a statusline to watch the lane for you, and a set of skills to buff the agent doing the work. Go ahead and take the credit — and tell your ADC to go bring you a cup ramen while they're at it.
+That's the whole idea — and in this story, **you're Yuumi.** Your coding **agent is the ADC**: it walks the lane, takes the fights, does the carrying. You attach to it, ride along, toss out the occasional buff (a prompt, a nudge, a skill), and come away having "carried." This plugin is your Yuumi kit — a statusline to watch the lane for you, and a set of skills to buff the agent doing the work. Now sit back, eat your cup ramen, and enjoy the credit you "earned" — then shout it one more time: "Carry!" 😎
 
 Works on **macOS, Linux, and Windows**.
 
@@ -169,4 +169,4 @@ Then set your terminal font to `JetBrainsMono Nerd Font`.
 
 ---
 
-*Your agent does the carrying on Claude Code and Codex. So sit back, eat your cup ramen, and shout it one more time: "Carry!" 😎*
+*Your agent carries on Claude Code and Codex. You ride along — and take the credit. That's the yuumi way. 🐱*
