@@ -57,8 +57,10 @@ Implements the spec while keeping a **running HTML notes file** that captures ex
 - **Output:** the code, plus `<slug>-implementation-notes.html` (it tells you how many open questions are waiting).
 
 #### `/yuumi:pretty [brief]` — the house visual system for HTML artifacts
-Turns a brief into a polished, **single-file Anthropic-style HTML artifact** — warm paper background, clay accent, editorial serif type, hairline rules, line-art SVG diagrams, restrained dark code blocks. This is the shared visual language that `explain` and `implement` build on, so every artifact feels like the same family. It ships a component catalog and SVG diagram patterns, and is tuned for cognitive-load-focused visual QA (Korean / mixed CJK text is first-class).
-- **Use it when** you want a beautiful, self-contained page for a concept, doc, or report.
+Turns a brief into a polished, **single-file Anthropic-style HTML artifact** — warm paper background, clay accent, editorial serif type, hairline rules, line-art SVG diagrams, restrained dark code blocks. This is the shared visual language that `explain` and `implement` build on, so every artifact feels like the same family.
+
+For longer material it goes past a static page: a **sticky table of contents** with scrollspy, **progressive disclosure** (collapsible sections and tabs), optional **interactive widgets** (before/after slider, step-through walkthroughs, filterable tables), and **data charts that lazy-load only when used** (Chart.js for quantitative data, Mermaid for large graphs) — all themed to the same palette, and every interaction degrades gracefully with JavaScript off. It ships component, interaction-pattern, and data-viz catalogs, and is tuned for cognitive-load-focused visual QA (Korean / mixed CJK text is first-class).
+- **Use it when** you want a beautiful, self-contained — and now navigable, explorable — page for a concept, doc, or report.
 - **Output:** a `.html` file in the working directory, opened in your browser.
 
 ### HUD maintenance — Claude Code only
