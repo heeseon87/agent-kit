@@ -512,6 +512,26 @@
 	th, td { overflow-wrap: normal; word-break: normal; }
 	.col-tight { white-space: nowrap; }
 
+	/* Collapsible section — progressive disclosure. Open by default in source so
+	   JS-off / print still shows everything. */
+	.fold { border-top: 1px solid var(--rule); margin: 8px 0; }
+	.fold > summary {
+		list-style: none; cursor: pointer; padding: 16px 0;
+		font-family: 'Hahmlet', Georgia, serif; font-size: 19px; color: var(--text);
+		display: flex; align-items: baseline; gap: 12px;
+	}
+	.fold > summary::-webkit-details-marker { display: none; }
+	.fold > summary::before {
+		content: "›"; color: var(--accent); font-size: 18px;
+		transition: transform 0.18s ease; transform: translateY(-1px);
+	}
+	.fold[open] > summary::before { transform: rotate(90deg) translateX(-1px); }
+	.fold > summary:hover { color: var(--accent-deep); }
+	.fold > *:not(summary) { margin-left: 24px; }
+	@media (prefers-reduced-motion: reduce) {
+		.fold > summary::before { transition: none; }
+	}
+
 	/* Lessons / takeaway block — inline tagged title + dim body */
 	.lesson { margin: 30px 0; padding: 0; }
 	.lesson-tag {
