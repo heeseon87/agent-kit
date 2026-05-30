@@ -1002,5 +1002,63 @@
 	});
 })();
 </script>
+
+<script>
+/* Heavy-library lazy loader — only fetches Chart.js / Mermaid when the page
+   actually uses them. Pinned CDN (scan-safe, same pattern as PrismJS). */
+(function () {
+	var PINS = {
+		chart: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js',
+		mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js'
+	};
+	function token(name, fallback) {
+		var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+		return v || fallback;
+	}
+	function inject(src, onload) {
+		var s = document.createElement('script');
+		s.src = src; s.async = true;
+		s.onload = onload;
+		s.onerror = function () { document.documentElement.dataset.prettyLibError = src; };
+		document.head.appendChild(s);
+	}
+	if (document.querySelector('[data-chart]')) {
+		inject(PINS.chart, function () {
+			if (!window.Chart) return;
+			Chart.defaults.color = token('--text-dim', '#5e5d59');
+			Chart.defaults.borderColor = token('--rule', '#e8e6dc');
+			Chart.defaults.font.family = "'JetBrains Mono', ui-monospace, monospace";
+			var accent = token('--accent', '#c96442');
+			document.querySelectorAll('[data-chart]').forEach(function (el) {
+				try {
+					var cfg = JSON.parse(el.getAttribute('data-chart'));
+					(cfg.data.datasets || []).forEach(function (ds) {
+						if (ds.backgroundColor === undefined) ds.backgroundColor = accent;
+						if (ds.borderColor === undefined) ds.borderColor = accent;
+					});
+					new Chart(el, cfg);
+				} catch (e) { document.documentElement.dataset.prettyChartError = e.message; }
+			});
+		});
+	}
+	if (document.querySelector('.mermaid')) {
+		inject(PINS.mermaid, function () {
+			if (!window.mermaid) return;
+			try {
+				mermaid.initialize({
+					startOnLoad: true, theme: 'base',
+					themeVariables: {
+						primaryColor: token('--surface', '#faf9f5'),
+						primaryTextColor: token('--text', '#141413'),
+						primaryBorderColor: token('--rule-strong', '#d1cfc5'),
+						lineColor: token('--text-dim', '#5e5d59'),
+						fontFamily: "'JetBrains Mono', ui-monospace, monospace"
+					}
+				});
+			} catch (e) { document.documentElement.dataset.prettyMermaidError = e.message; }
+		});
+	}
+})();
+</script>
 </body>
 </html>
