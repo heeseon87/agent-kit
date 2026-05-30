@@ -732,6 +732,21 @@
 	.ba-on .ba-stage > .ba-before, .ba-on .ba-stage > .ba-after { grid-area: 1 / 1; }
 	.ba-on .ba-after { clip-path: inset(0 0 0 var(--split, 50%)); }
 	.ba-on .ba-before { clip-path: inset(0 calc(100% - var(--split, 50%)) 0 0); }
+
+	/* Stepper — walk a sequence one step at a time. JS-off shows all steps. */
+	.stepper-step { list-style: none; padding: 4px 0; }
+	.stepper-nav { display: none; }
+	.stepper-on .stepper-nav {
+		display: flex; align-items: center; gap: 16px; margin-top: 16px;
+		font-size: 13px; color: var(--text-faint);
+	}
+	.stepper-on .stepper-nav button {
+		background: none; border: 1px solid var(--rule-strong); border-radius: 3px;
+		width: 32px; height: 32px; cursor: pointer; color: var(--accent); font-size: 16px;
+	}
+	.stepper-on .stepper-nav button:disabled { color: var(--text-faint); cursor: default; opacity: 0.4; }
+	.stepper-on .stepper-step { display: none; }
+	.stepper-on .stepper-step.current { display: block; }
 </style>
 </head>
 <body>
@@ -931,6 +946,30 @@
 		function apply() { stage.style.setProperty('--split', range.value + '%'); }
 		range.addEventListener('input', apply);
 		apply();
+	});
+})();
+</script>
+
+<script>
+/* Stepper — progressive enhancement. */
+(function () {
+	document.querySelectorAll('[data-stepper]').forEach(function (el) {
+		var steps = Array.prototype.slice.call(el.querySelectorAll('.stepper-step'));
+		var prev = el.querySelector('.stepper-prev');
+		var next = el.querySelector('.stepper-next');
+		var count = el.querySelector('.stepper-count');
+		if (steps.length < 2 || !prev || !next) return;
+		el.classList.add('stepper-on');
+		var i = 0;
+		function render() {
+			steps.forEach(function (s, n) { s.classList.toggle('current', n === i); });
+			if (count) count.textContent = (i + 1) + ' / ' + steps.length;
+			prev.disabled = (i === 0);
+			next.disabled = (i === steps.length - 1);
+		}
+		prev.addEventListener('click', function () { if (i > 0) { i--; render(); } });
+		next.addEventListener('click', function () { if (i < steps.length - 1) { i++; render(); } });
+		render();
 	});
 })();
 </script>
