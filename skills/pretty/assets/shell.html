@@ -507,6 +507,10 @@
 	}
 	td:last-child, th:last-child { padding-right: 0; }
 	td code { font-size: 13.5px; }
+	/* Cells should not break on every character — the global overflow-wrap:anywhere
+	   (set on body for long URLs/code) otherwise collapses short cells to 2-3 lines. */
+	th, td { overflow-wrap: normal; word-break: normal; }
+	.col-tight { white-space: nowrap; }
 
 	/* Lessons / takeaway block — inline tagged title + dim body */
 	.lesson { margin: 30px 0; padding: 0; }
