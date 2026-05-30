@@ -691,6 +691,20 @@
 		.toc a.active { border-left: none; }
 	}
 	@media (prefers-reduced-motion: reduce) { .toc a { transition: none; } }
+
+	/* Tabs — switch parallel views (e.g. language variants). JS-off shows all panels. */
+	.tab-bar { display: none; gap: 4px; border-bottom: 1px solid var(--rule); margin: 24px 0 0; }
+	.tabs-on .tab-bar { display: flex; }
+	.tab {
+		background: none; border: none; cursor: pointer;
+		font-family: inherit; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+		color: var(--text-faint); padding: 10px 14px; margin-bottom: -1px;
+		border-bottom: 2px solid transparent;
+	}
+	.tab:hover { color: var(--text-dim); }
+	.tab[aria-selected="true"] { color: var(--accent-deep); border-bottom-color: var(--accent); }
+	.tabs-on .tab-panel[hidden] { display: none; }
+	.tabs-on .tab-panel { margin-top: 20px; }
 </style>
 </head>
 <body>
@@ -856,6 +870,26 @@
 		});
 	}, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
 	targets.forEach(function (t) { obs.observe(t); });
+})();
+</script>
+
+<script>
+/* Tabs — progressive enhancement. Without JS all panels stay visible. */
+(function () {
+	document.querySelectorAll('[data-tabs]').forEach(function (group) {
+		var tabs = Array.prototype.slice.call(group.querySelectorAll('.tab'));
+		var panels = Array.prototype.slice.call(group.querySelectorAll('.tab-panel'));
+		if (!tabs.length || !panels.length) return;
+		group.classList.add('tabs-on');
+		function select(id) {
+			tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-tab') === id)); });
+			panels.forEach(function (p) { p.hidden = (p.id !== id); });
+		}
+		tabs.forEach(function (t) {
+			t.addEventListener('click', function () { select(t.getAttribute('data-tab')); });
+		});
+		select(tabs[0].getAttribute('data-tab'));
+	});
 })();
 </script>
 </body>
