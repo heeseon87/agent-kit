@@ -1,7 +1,7 @@
 ---
 name: pretty
 description: Create Anthropic-style HTML artifacts with the shared Yuumi visual system — navigable layouts, progressive disclosure, optional interactive widgets and data charts, a component catalog, SVG patterns, and cognitive-load-focused visual QA
-version: 1.3.23
+version: 1.3.24
 argument-hint: [brief]
 ---
 
@@ -65,6 +65,8 @@ Use the reference swatches in the shell; do not freestyle colors.
 Visuals are not decoration. Add a diagram only when it saves the reader from doing mental bookkeeping: simulating branches, remembering a timeline, comparing before/after states, mapping input to output, following a data transformation, or stacking verification evidence.
 
 Before adding any visual or interaction — `<figure>`, a chart, a tab group, a stepper — name the specific burden it removes. If the answer is vague ("it looks nicer", "the page needs interest"), skip it. There is no fixed ceiling on count; the ceiling is the gate: every element must earn its place by removing a named burden. A page may be richly visual or nearly all prose — what is never allowed is a visual or widget that exists only to look busy.
+
+**Climb the modality ladder.** The same idea costs the reader less working memory as it moves from prose to a static diagram to motion, so motion (an animated SVG, a stepped reveal) is a first-class tool, not a last resort — there is no count-cap on it. But each climb pays two tolls: the *named burden* above, and *truthfulness* — motion asserts time, order, causality, or parallelism, so animate only where those are real (a sequence reveal is honest because the page already flows in time; animating independent items to look parallel is not). Every animation must degrade to a meaningful still frame with JS off and under `prefers-reduced-motion`. In a self-contained artifact, "motion" is controlled SVG/CSS animation and steppers — never embedded video. See `svg-patterns.md` for the ladder and the one-instance limit on the turnkey fan-out/join controller.
 
 Inline SVG is the default. For final pretty artifacts, prefer self-contained inline SVG styled with the shell tokens. When the data is genuinely quantitative use Chart.js, and for large auto-laid or draft graphs use Mermaid — the shell lazy-loads both from a pinned CDN only when the page contains the element (`[data-chart]` on a `<canvas>`, or `.mermaid`). See `data-viz.md`.
 

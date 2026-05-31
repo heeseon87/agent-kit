@@ -78,7 +78,7 @@ Inline italic tag + serif title + dim body. Use for portable lessons — what a 
 ### `<figure>` + `<svg>` + `<figcaption>`
 For diagrams. Caption is italic serif centered, prefixed by `<span class="fig-num">Fig N</span>`. The caption should make the *insight* explicit, not describe what's drawn — a reader who sees only the caption should still get the point.
 
-See `references/svg-patterns.md` for four patterns: ERD, sequence, fan-out/join (with animation), decision tree. Use a diagram when the relationship is spatial, temporal, branching, contractual, transformational, or evidentiary in a way that linear prose would force the reader to calculate or hold a stack in memory. Skip it when prose already makes the idea clear.
+See `references/svg-patterns.md` for four patterns: ERD, sequence, fan-out/join (with animation), decision tree. Use a diagram when the relationship is spatial, temporal, branching, contractual, transformational, or evidentiary in a way that linear prose would force the reader to calculate or hold a stack in memory. Skip it when prose already makes the idea clear. A figure may also be put in motion when motion *truthfully* unloads a timeline or branch (a sequence reveal, a stepped walkthrough) — `svg-patterns.md` covers the modality ladder and the one-per-page limit on the turnkey fan-out/join controller.
 
 ### `<table>` (inside `.t-wrap`)
 Hairline rows, no zebra striping. Use for genuinely tabular data — 3+ columns of parallel facts. For 2 columns with 3 rows, prose or a `.callout` is usually clearer.

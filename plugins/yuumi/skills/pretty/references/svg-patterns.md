@@ -17,6 +17,19 @@ If the answer is "visual interest," skip the diagram. There is no fixed count an
 
 Default to inline SVG. Use Mermaid, Graphviz/DOT, ELK/Dagre, D3, or Observable Plot only when the data size or layout problem justifies the dependency; for final pretty artifacts, export or translate the result back into self-contained SVG styled with the shell tokens.
 
+## The modality ladder — prose < diagram < motion
+
+The same idea costs the reader less working memory as you climb from prose to a static diagram to motion. So motion is a **first-class tool, not an exception** — there is no count-cap on it, exactly as there is none on figures. A page may animate several relationships or none; the question is never "how many," it is "does each climb pay its tolls."
+
+Two tolls govern every step up the ladder:
+
+1. **Burden** — climb only when a named stuck-point pays for it (a branch to simulate, a timeline to hold, a transformation to track). Motion added for "visual interest" is slop one rung worse than a decorative static diagram, because it also spends the reader's attention.
+2. **Truthfulness** — motion *asserts* what a still drawing does not: time, order, causality, parallelism. Animate only where those properties are literally real. Revealing a top-to-bottom sequence diagram in message order is truthful by construction — the page already flows in time. Animating independent items to fan out "in parallel" when they actually run sequentially or in a batch installs a false model. When unsure, stay static.
+
+**Degradation is part of the contract, not an afterthought.** Every animation must collapse to a meaningful final still frame under `prefers-reduced-motion` and with JS off — the static frame has to carry the point alone. In a self-contained pretty artifact, "motion" means controlled SVG/CSS animation and stepped reveals (`[data-stepper]`), **never** an embedded video: a single scan-safe file keeps no `.mp4` dependency.
+
+Reach for the **sequence diagram (Pattern 2)** first — it is the canonical *safe* motion. The turnkey **fan-out/join (Pattern 3)** is the most eye-catching but also the most truthfulness-dangerous, and the shell ships a controller for only one instance per page; treat it as a special case, not the default animation.
+
 ## Universal SVG principles
 
 1. **Single accent color.** Stroke in `var(--accent)` for emphasized elements, `var(--text)` for primary structure, `var(--text-dim)` for secondary. No fills (except `var(--bg)` to mask backgrounds behind crossing paths).
@@ -129,7 +142,11 @@ Time flows top-to-bottom. Each actor is a lane with a dashed lifeline. Messages 
 
 ## Pattern 3 — Fan-out / join with animation
 
-The most visually impactful pattern. Used for parallel async work that converges. **Only use this once per document** — the animation steals attention.
+The most eye-catching pattern, for parallel async work that converges. Two cautions decide whether it belongs:
+
+**Truthfulness.** It asserts that the targets run in parallel and then join. Use it only when that is literally true — for sequential or batched work it is the exact wrong-model trap (a UNION ALL round-trip, for instance, is one connection doing N things in sequence, not a fan-out, so it stays a static before/after strip).
+
+**One instance per page — a tooling limit, not taste.** The shell's controller binds a *single* `id="parallelFig"` and exposes one `window.replayParallel`, so only the first such figure on a page animates. The modality ladder lifts the count-cap on motion in general, but a *second* animated figure cannot reuse this turnkey controller — give it its own IDs and scoped JS following the Rules below.
 
 The SVG structure with both fan-out and join phases, plus an `awaitAll` merge node:
 
@@ -209,7 +226,7 @@ The IIFE at the bottom of `shell.html` reads these IDs and orchestrates the 4-ph
 
 ## SVG animation — the rules
 
-These are the traps that have eaten multiple rewrite cycles. Follow them religiously.
+These are the traps that have eaten multiple rewrite cycles. Follow them religiously — and follow them whenever you hand-roll motion on *any* pattern (a second fan-out/join, or an animated sequence/decision reveal), since only the first fan-out/join gets the turnkey controller above.
 
 ### Rule 1: Always use `getTotalLength()` for line-draw
 

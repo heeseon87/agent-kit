@@ -1,7 +1,7 @@
 ---
 name: explain
 description: Render an Anthropic-style HTML explainer of the target — structure designed per-target with cognitive-load-focused visuals
-version: 1.3.23
+version: 1.3.24
 argument-hint: [target]
 ---
 
@@ -59,6 +59,8 @@ High-value explainer visuals:
 
 There is no fixed count and no ceiling. The number of visuals is set by **how many genuine cognitive-load points the content has** — not by its length — and you judge that. The goal is to visualize *every* place where the reader would otherwise have to compute something in their head: a branch to simulate, a timeline to hold, a transformation to track, a boundary to map. A page with one such point needs one visual; a page dense with them needs many; long prose with few stuck-points still needs few. The discipline is not "few" but "each earns its place by removing a named burden, and none exists just to look busy." A mediocre visual still costs the reader attention, so cut those; never cap the strong ones. If a single map sprawls, it may still read better as its own dedicated page.
 
+Motion is the top rung of the same ladder, not a special case. A relationship you reveal in motion — a stepped walkthrough, an animated sequence — can unload a timeline or a branch better than a still frame, so there is no cap on animation either. But motion pays a second toll beyond "name the burden": **truthfulness.** Animation asserts time, order, or parallelism; use it only where those are real (a sequence reveal is honest because the page already flows in time; animating independent steps to look parallel is not). And every animation must collapse to a meaningful still frame with JS off and under `prefers-reduced-motion`. In a single-file artifact, motion means controlled SVG/CSS animation and steppers, never embedded video.
+
 Facts beat symmetry. Do not invent layers, nodes, arrows, files, calls, or domains because a diagram looks empty. Trace the code first; draw only relationships that actually exist. If the visual is about a general concept rather than this codebase, label it as conceptual.
 
 Place each visual where the reader would otherwise pause and re-read. The caption should carry the insight in one sentence.
@@ -100,7 +102,7 @@ If the explanation is meant to carry the Anthropic visual language, do a manual 
 - **Don't add a section just because it exists in `components.md`.** Components are tools — use them only when they serve the reader's path.
 - **Don't dump the explanation in chat first.** Write the HTML, open it, then say "saved to {path}."
 - **Don't replicate the source code's organization.** The reader doesn't care which file something is in; they care about the *idea*. Structure by ideas, not files.
-- **Don't add more than one animation per document.** And only if there's parallelism or motion that's genuinely hard to convey statically.
+- **Don't animate what isn't temporal, causal, or parallel.** Motion asserts order and concurrency; using it where the relationship is static or sequential installs a false mental model. The limit on motion is not a count — it's truthfulness — and every animation must still degrade to a meaningful still frame with JS off.
 
 ## When you're done
 

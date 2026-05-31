@@ -38,7 +38,7 @@ A tab bar over `.tab-panel`s. JS-off shows all panels stacked. **Removes:** the 
 Overlays two states; a range input clips between them. JS-off stacks both. **Removes:** mental diffing of two states. **Use when:** before/after is the whole point (refactor, config change, design tweak). **Don't use:** for more than two states, or where a side-by-side `<table>` reads clearer.
 
 ### `[data-stepper]` — sequential walkthrough
-Shows one `.stepper-step` at a time with prev/next. JS-off shows all steps numbered. **Removes:** holding a multi-step process in working memory all at once. **Use when:** order matters and steps are heavy enough that seeing one at a time aids focus. **Don't use:** for a short ordered list (use `.steps`).
+Shows one `.stepper-step` at a time with prev/next. JS-off shows all steps numbered. **Removes:** holding a multi-step process in working memory all at once. **Use when:** order matters and steps are heavy enough that seeing one at a time aids focus. **Don't use:** for a short ordered list (use `.steps`). This is the JS-off-safe top of the modality ladder (`svg-patterns.md`): paced motion over a *real* sequence that collapses to a numbered list when scripting is off.
 
 ### `[data-filter-table]` — filterable table
 A search input that hides non-matching rows. JS-off hides the input, shows all rows. **Removes:** scanning a long table for a few rows. **Use when:** 15+ rows. **Don't use:** small tables — the input is overhead.

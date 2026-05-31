@@ -898,6 +898,8 @@
 <!-- Animation controller — only runs if you add an SVG figure with id="parallelFig".
      The IIFE auto-plays once when the figure enters the viewport, and exposes
      window.replayParallel() for an optional replay button.
+     Single instance per page: it binds one #parallelFig and one window.replayParallel,
+     so a second animated figure needs its own scoped JS (see references/svg-patterns.md).
      If you don't add such a figure, this script is a no-op. -->
 <script>
 	(function () {

@@ -1,7 +1,7 @@
 ---
 name: implement
 description: Implement a spec while keeping a running context-slugged HTML decision log that captures reviewer-facing decisions, tradeoffs, open questions, and cognitive-load-reducing visuals
-version: 1.3.23
+version: 1.3.24
 argument-hint: [spec]
 ---
 
@@ -79,6 +79,8 @@ Good implementation-note visuals:
 - **Small sequence diagram** — only after verifying real function names and calls in code.
 
 There is no fixed count and no ceiling — the number of figures is set by **how many genuine cognitive-load points the log has**, not by its length. Visualize every place the reader would otherwise have to compute something in their head (a branch to simulate, a state change to track, a before/after ownership shift); add no figure that does not clear such a burden, and cut decorative ones. A simple log may need none; a decision-dense one may need many. Put each figure next to the prose it replaces, not in a gallery. The caption must state the insight, not merely describe the drawing.
+
+Motion follows the same rule, scaled to the log's terse voice: a stepped reveal or an animated state transition is fair game when it *truthfully* unloads a sequence or a state change the reviewer would otherwise simulate — but a decision log rarely needs it, and motion must never assert order or parallelism that isn't real.
 
 Do not draw decorative architecture. Do not invent nodes, domains, steps, or relationships to make a diagram look balanced. If the code does not call it, the diagram does not show it.
 
